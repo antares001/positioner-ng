@@ -18,7 +18,7 @@ public class SqlDao {
     public SqlDao(){
         sqlConnector.setHostname("jdbc:mysql://127.0.0.1:3306/traccar");
         sqlConnector.setUsername("root");
-        sqlConnector.setPassword("");
+        sqlConnector.setPassword("oopwdlin357");
     }
 
     public UserSettings GetUserSetting(String username){
@@ -38,6 +38,27 @@ public class SqlDao {
                 result.setGroup(resultSet.getString("admin"));
             }
 
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public ArrayList<UserSettings> GetUsers(){
+        ArrayList<UserSettings> result = new ArrayList<UserSettings>();
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            String query = "select * from users";
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()){
+                UserSettings settings = new UserSettings();
+                settings.setUsername(resultSet.getString("login"));
+                settings.setGroup(resultSet.getString("admin"));
+                result.add(settings);
+            }
             statement.close();
             connection.close();
         } catch (SQLException e) {
