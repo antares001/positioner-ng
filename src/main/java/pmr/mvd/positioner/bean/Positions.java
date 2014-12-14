@@ -1,6 +1,11 @@
 package pmr.mvd.positioner.bean;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Positions {
+    private static final SimpleDateFormat sdf = new SimpleDateFormat();
+
     private String id;
     private String address;
     private String altitude;
@@ -10,7 +15,7 @@ public class Positions {
     private String other;
     private String power;
     private String speed;
-    private String time;
+    private Date time;
     private String valid;
     private String deviceId;
 
@@ -87,10 +92,10 @@ public class Positions {
     }
 
     public String getTime(){
-        return this.time;
+        return sdf.format(this.time);
     }
 
-    public void setTime(String arg){
+    public void setTime(Date arg){
         this.time = arg;
     }
 
