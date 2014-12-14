@@ -115,7 +115,7 @@ public class SqlDao {
                 bean.setOther(resultSet.getString("other"));
                 bean.setPower(resultSet.getString("power"));
                 bean.setSpeed(resultSet.getString("speed"));
-                bean.setTime(String.valueOf(resultSet.getTime("time")));
+                bean.setTime(resultSet.getDate("time"));
                 bean.setValid(resultSet.getString("valid"));
                 bean.setDeviceId(resultSet.getString("device_id"));
                 result.add(bean);

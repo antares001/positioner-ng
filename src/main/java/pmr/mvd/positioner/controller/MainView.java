@@ -113,7 +113,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                     row.getItemProperty("Группа").setValue(group);
                 }
 
-                tabUsers.setPageLength(tabUsers.size());
+                tabUsers.setPageLength(5);
                 tabUsers.setSizeFull();
 
                 vertical.addComponent(tabUsers);
