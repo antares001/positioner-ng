@@ -151,4 +151,17 @@ public class SqlDao {
         }
         return result;
     }
+
+    public void AddNewDevice(String name, String id){
+        String query = "insert into devices(name,uniqueId) values('" + name + "','" + id +"')";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
