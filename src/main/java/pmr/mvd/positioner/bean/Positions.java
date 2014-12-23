@@ -4,8 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Positions {
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MMMM-yyyy hh:MM:ss");
-
     private String id;
     private String address;
     private String altitude;
@@ -15,7 +13,7 @@ public class Positions {
     private String other;
     private String power;
     private String speed;
-    private Date time;
+    private String time;
     private String valid;
     private String deviceId;
 
@@ -92,10 +90,10 @@ public class Positions {
     }
 
     public String getTime(){
-        return sdf.format(this.time);
+        return this.time;
     }
 
-    public void setTime(Date arg){
+    public void setTime(String arg){
         this.time = arg;
     }
 

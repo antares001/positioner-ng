@@ -10,6 +10,7 @@ import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.LatLon;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
+import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.bean.Devices;
 import pmr.mvd.positioner.bean.Positions;
@@ -28,9 +29,11 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     private String oneTS = "";
     private String oneFirstDate = sdf.format(new Date());
     private String oneLastDate = sdf.format(new Date());
+    private String dev = "";
     
     private Table statusCar = new Table("Статус утройства");
     private GoogleMap googleMap = new GoogleMap(null,null,null);
+    private GoogleMapPolyline polyline;
 
     Label text = new Label();
 
@@ -52,8 +55,8 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         }
 
         MenuBar.MenuItem tracks = menuBar.addItem("Треки", null);
-        tracks.addItem("Показать трек выбранного ТС", null);
-        tracks.addItem("Задать период отображения трека", null);
+        tracks.addItem("Показать трек выбранного ТС", new SetPathDevice());
+        //tracks.addItem("Задать период отображения трека", null);
 
         MenuBar.MenuItem admins = menuBar.addItem("Администрирование",null);
         MenuBar.MenuItem print = menuBar.addItem("Отчеты",null);
@@ -399,8 +402,9 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                 statusCar.removeAllItems();
             }
             ArrayList<Positions> positionses = dao.GetPositions(selectedItem.getText());
+            dev = selectedItem.getText();
             if (positionses.size() != 0) {
-                Positions first = positionses.get(positionses.size() - 1);
+                Positions first = positionses.get(0);
                 googleMap.setCenter(new LatLon(Double.parseDouble(first.getLatitude()), Double.parseDouble(first.getLongitude())));
                 Collection points = googleMap.getMarkers();
                 for (Object marker : points) {
@@ -419,6 +423,17 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                 }
                 Notification.show("Для данного ТС нет данных");
             }
+        }
+    }
+
+    private class SetPathDevice implements MenuBar.Command{
+
+        @Override
+        public void menuSelected(MenuBar.MenuItem menuItem) {
+            ArrayList<LatLon> pathPoints = dao.GetPathDevice(dev);
+            try{googleMap.removePolyline(polyline);} catch (NullPointerException e){}
+            polyline = new GoogleMapPolyline(pathPoints, "#ff0000", 0.5, 5);
+            googleMap.addPolyline(polyline);
         }
     }
 

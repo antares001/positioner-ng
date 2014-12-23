@@ -1,6 +1,7 @@
 package pmr.mvd.positioner.dao;
 
 
+import com.vaadin.tapio.googlemaps.client.LatLon;
 import pmr.mvd.positioner.bean.Devices;
 import pmr.mvd.positioner.bean.Positions;
 import pmr.mvd.positioner.bean.Report;
@@ -101,7 +102,7 @@ public class SqlDao {
             if (device.equals(""))
                 query = "select * from positions order by id desc limit 20";
             else
-                query = "select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + device + "'";
+                query = "select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + device + "' order by positions.id desc";
 
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()){
@@ -115,9 +116,10 @@ public class SqlDao {
                 bean.setOther(resultSet.getString("other"));
                 bean.setPower(resultSet.getString("power"));
                 bean.setSpeed(resultSet.getString("speed"));
-                bean.setTime(resultSet.getDate("time"));
+                bean.setTime(resultSet.getString("time"));
                 bean.setValid(resultSet.getString("valid"));
                 bean.setDeviceId(resultSet.getString("device_id"));
+
                 result.add(bean);
             }
             statement.close();
@@ -163,5 +165,27 @@ public class SqlDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public ArrayList<LatLon> GetPathDevice(String dev) {
+        ArrayList<LatLon> result = new ArrayList<LatLon>();
+        String query = " select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + dev + "' and time like '2014-12-12%' order by positions.id desc";
+        System.out.println(query);
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()){
+                LatLon latLon = new LatLon();
+                latLon.setLat(Double.parseDouble(resultSet.getString("latitude")));
+                latLon.setLon(Double.parseDouble(resultSet.getString("longitude")));
+                result.add(latLon);
+            }
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }
