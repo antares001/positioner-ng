@@ -11,10 +11,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class SqlDao {
-    MySQLConnector sqlConnector = new MySQLConnector();
+    private MySQLConnector sqlConnector = new MySQLConnector();
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 
     public SqlDao(){
         sqlConnector.setHostname("jdbc:mysql://127.0.0.1:3306/traccar");
@@ -169,8 +172,8 @@ public class SqlDao {
 
     public ArrayList<LatLon> GetPathDevice(String dev) {
         ArrayList<LatLon> result = new ArrayList<LatLon>();
-        String query = " select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + dev + "' and time like '2014-12-12%' order by positions.id desc";
-        System.out.println(query);
+        String now = sdf.format(new Date());
+        String query = " select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + dev + "' and time like '" + now + "%' order by positions.id desc";
         try {
             Connection connection = sqlConnector.getConnect();
             Statement statement = connection.createStatement();

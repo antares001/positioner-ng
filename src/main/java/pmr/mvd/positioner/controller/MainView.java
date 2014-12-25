@@ -383,10 +383,23 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         statusCar.setPageLength(statusCar.size());
         
         statusCar.addValueChangeListener(new Property.ValueChangeListener() {
-
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
-                Notification.show(statusCar.getId());
+                String message = "1";
+
+                try {message = String.valueOf(event.getProperty().getValue());} catch (NumberFormatException ignored){}
+                ArrayList<Positions> positionses = dao.GetPositions(dev);
+
+                Positions pos = positionses.get(Integer.parseInt(message) - 1);
+                googleMap.setCenter(new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())));
+
+                Collection points = googleMap.getMarkers();
+                for (Object marker : points) {
+                    googleMap.removeMarker((GoogleMapMarker) marker);
+                }
+                googleMap.addMarker(dev, new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())), false, null);
+
+                Notification.show("Транспортное средство: " + dev + ", lat: " + pos.getLatitude() + ", lon: " + pos.getLongitude());
             }
         });
         main.addComponent(statusCar);
