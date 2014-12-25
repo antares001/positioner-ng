@@ -1,5 +1,6 @@
 package pmr.mvd.positioner.controller;
 
+import com.vaadin.annotations.Push;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
@@ -21,6 +22,7 @@ import pmr.mvd.positioner.dao.SqlDao;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Push
 public class MainView extends CustomComponent implements View, Action.Handler, Property.ValueChangeListener{
     public static final String NAME = "main";
 
