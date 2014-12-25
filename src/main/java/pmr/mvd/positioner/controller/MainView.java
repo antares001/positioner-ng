@@ -32,6 +32,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     private String oneFirstDate = sdf.format(new Date());
     private String oneLastDate = sdf.format(new Date());
     private String dev = "";
+    private String delDev = "0";
     
     private Table statusCar = new Table("Статус утройства");
     private GoogleMap googleMap = new GoogleMap(null,null,null);
@@ -159,8 +160,29 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                         UI.getCurrent().addWindow(addTs);
                     }
                 });
-                Button deleteDevice = new Button("Удалить");
+
+                final Button deleteDevice = new Button("Удалить", new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(Button.ClickEvent clickEvent) {
+                        ArrayList<Devices> devices = dao.GetDevices();
+                        try {
+                            Devices d = devices.get(Integer.parseInt(delDev) - 1);
+                            dao.DelDevice(d.getName());
+                            Notification.show("Удалено транс. средство: " + d.getName() + "");
+                        } catch (Exception e){
+                            Notification.show("ТС уже удалено");
+                        }
+                    }
+                });
                 deleteDevice.setEnabled(false);
+
+                tabDevice.addValueChangeListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        deleteDevice.setEnabled(true);
+                        delDev = String.valueOf(valueChangeEvent.getProperty().getValue());
+                    }
+                });
 
                 Button exit = new Button("Закрыть",new Button.ClickListener() {
                     @Override

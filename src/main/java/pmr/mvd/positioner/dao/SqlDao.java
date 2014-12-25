@@ -170,6 +170,19 @@ public class SqlDao {
         }
     }
 
+    public void DelDevice(String name){
+        String query = "delete from devices where name='" + name + "'";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public ArrayList<LatLon> GetPathDevice(String dev) {
         ArrayList<LatLon> result = new ArrayList<LatLon>();
         String now = sdf.format(new Date());
