@@ -55,9 +55,6 @@ public class Login extends CustomComponent implements View, Button.ClickListener
         try {
             UserSettings settings = dao.GetUserSetting(username);
             if (pass.equals(settings.getPassword())) {
-                HiddenVariable hidden = HiddenVariable.getInstance();
-                hidden.pullDown("isAdmin", settings.getGroup());
-
                 getSession().setAttribute("user", username);
                 getUI().getNavigator().navigateTo(MainView.NAME);
             } else {
@@ -65,6 +62,7 @@ public class Login extends CustomComponent implements View, Button.ClickListener
                 password.focus();
             }
         } catch (NullPointerException e){
+            e.printStackTrace();
             Notification.show("Нет соеднинения с БД.");
         }
     }
