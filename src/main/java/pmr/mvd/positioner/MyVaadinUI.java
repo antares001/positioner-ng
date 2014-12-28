@@ -2,6 +2,7 @@ package pmr.mvd.positioner;
 
 import javax.servlet.annotation.WebServlet;
 
+import com.google.gwt.editor.client.impl.Refresher;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;

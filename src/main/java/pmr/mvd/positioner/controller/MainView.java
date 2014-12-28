@@ -1,5 +1,6 @@
 package pmr.mvd.positioner.controller;
 
+import com.vaadin.annotations.Push;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
@@ -10,6 +11,7 @@ import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.LatLon;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
+import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.bean.Devices;
 import pmr.mvd.positioner.bean.Positions;
@@ -20,6 +22,7 @@ import pmr.mvd.positioner.dao.SqlDao;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Push
 public class MainView extends CustomComponent implements View, Action.Handler, Property.ValueChangeListener{
     public static final String NAME = "main";
 
@@ -28,9 +31,12 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     private String oneTS = "";
     private String oneFirstDate = sdf.format(new Date());
     private String oneLastDate = sdf.format(new Date());
+    private String dev = "";
+    private String delDev = "0";
     
     private Table statusCar = new Table("Статус утройства");
     private GoogleMap googleMap = new GoogleMap(null,null,null);
+    private GoogleMapPolyline polyline;
 
     Label text = new Label();
 
@@ -52,8 +58,8 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         }
 
         MenuBar.MenuItem tracks = menuBar.addItem("Треки", null);
-        tracks.addItem("Показать трек выбранного ТС", null);
-        tracks.addItem("Задать период отображения трека", null);
+        tracks.addItem("Показать трек выбранного ТС", new SetPathDevice());
+        //tracks.addItem("Задать период отображения трека", null);
 
         MenuBar.MenuItem admins = menuBar.addItem("Администрирование",null);
         MenuBar.MenuItem print = menuBar.addItem("Отчеты",null);
@@ -72,10 +78,127 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
             @Override
             public void menuSelected(MenuBar.MenuItem selectedItem) {
                 final Window windowAddTs = new Window("Управление транспортными средствами");
-                windowAddTs.setWidth(800.0f, Unit.PIXELS);
-                windowAddTs.setHeight(600.0f, Unit.PIXELS);
+                windowAddTs.setWidth(600.0f, Unit.PIXELS);
+                windowAddTs.setHeight(400.0f, Unit.PIXELS);
                 windowAddTs.setModal(true);
                 final FormLayout formLayout = new FormLayout();
+
+                VerticalLayout verticalLayout = new VerticalLayout();
+
+                Table tabDevice = new Table("Транспортные средства");
+                tabDevice.setSelectable(true);
+
+                tabDevice.addContainerProperty("id",String.class, null);
+                tabDevice.addContainerProperty("Имя", String.class, null);
+                tabDevice.addContainerProperty("Уникальный идентификатор", String.class, null);
+
+                ArrayList<Devices> devices = dao.GetDevices();
+                for (Devices device : devices){
+                    try {
+                        String id = device.getId();
+                        String name = device.getName();
+                        String positions = device.getUniq();
+
+                        Object newItem = tabDevice.addItem();
+                        Item row = tabDevice.getItem(newItem);
+                        row.getItemProperty("id").setValue(id);
+                        row.getItemProperty("Имя").setValue(name);
+                        row.getItemProperty("Уникальный идентификатор").setValue(positions);
+                    }catch (NullPointerException ignored){}
+                }
+
+                tabDevice.setPageLength(5);
+                tabDevice.setSizeFull();
+
+                verticalLayout.addComponent(tabDevice);
+
+                final CustomLayout custom = new CustomLayout("buttons");
+
+                Button addNewDevice = new Button("Добавить", new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(Button.ClickEvent clickEvent) {
+                        final Window addTs = new Window("Добавить");
+                        final FormLayout formLayout = new FormLayout();
+                        addTs.setWidth(400.0f, Unit.PIXELS);
+                        addTs.setHeight(200.0f, Unit.PIXELS);
+                        addTs.setModal(true);
+
+                        final CustomLayout layout = new CustomLayout("newuser");
+
+                        final TextField username = new TextField();
+                        layout.addComponent(username, "nameInput");
+
+                        final TextField idname = new TextField();
+                        layout.addComponent(idname, "idInput");
+
+                        final Button add = new Button("Добавить", new Button.ClickListener() {
+                            @Override
+                            public void buttonClick(Button.ClickEvent clickEvent) {
+                                if (username.getValue().equals("")){
+                                    Notification.show("Не введено имя транспортного средства");
+                                } else if (idname.getValue().equals("")){
+                                    Notification.show("Не введен уникальный идентификатор");
+                                } else {
+                                    dao.AddNewDevice(username.getValue(), idname.getValue());
+                                    addTs.close();
+                                }
+                            }
+                        });
+                        layout.addComponent(add, "addbutton");
+
+                        Button close = new Button("Закрыть", new Button.ClickListener() {
+                            @Override
+                            public void buttonClick(Button.ClickEvent clickEvent) {
+                                addTs.close();
+                            }
+                        });
+                        layout.addComponent(close, "close");
+
+                        formLayout.addComponent(layout);
+
+                        addTs.setContent(formLayout);
+                        UI.getCurrent().addWindow(addTs);
+                    }
+                });
+
+                final Button deleteDevice = new Button("Удалить", new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(Button.ClickEvent clickEvent) {
+                        ArrayList<Devices> devices = dao.GetDevices();
+                        try {
+                            Devices d = devices.get(Integer.parseInt(delDev) - 1);
+                            dao.DelDevice(d.getName());
+                            Notification.show("Удалено транс. средство: " + d.getName() + "");
+                        } catch (Exception e){
+                            Notification.show("ТС уже удалено");
+                        }
+                    }
+                });
+                deleteDevice.setEnabled(false);
+
+                tabDevice.addValueChangeListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        deleteDevice.setEnabled(true);
+                        delDev = String.valueOf(valueChangeEvent.getProperty().getValue());
+                    }
+                });
+
+                Button exit = new Button("Закрыть",new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(Button.ClickEvent event) {
+                        windowAddTs.close();
+                    }
+                });
+
+                custom.addComponent(addNewDevice, "addButton");
+                custom.addComponent(deleteDevice, "deleteButton");
+                custom.addComponent(exit, "close");
+
+                verticalLayout.addComponent(custom);
+
+                formLayout.addComponent(verticalLayout);
+
                 windowAddTs.setContent(formLayout);
                 UI.getCurrent().addWindow(windowAddTs);
             }
@@ -113,14 +236,27 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                     row.getItemProperty("Группа").setValue(group);
                 }
 
-                tabUsers.setPageLength(tabUsers.size());
+                tabUsers.setPageLength(5);
                 tabUsers.setSizeFull();
 
                 vertical.addComponent(tabUsers);
 
                 final CustomLayout custom = new CustomLayout("buttons");
 
-                Button addNewUser = new Button("Добавить");
+                Button addNewUser = new Button("Добавить", new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(Button.ClickEvent clickEvent) {
+                        final Window addUser = new Window("Добавить");
+                        addUser.setWidth(400.0f, Unit.PIXELS);
+                        addUser.setHeight(200.0f, Unit.PIXELS);
+                        addUser.setModal(true);
+
+                        final FormLayout formLayout = new FormLayout();
+
+                        addUser.setContent(formLayout);
+                        UI.getCurrent().addWindow(addUser);
+                    }
+                });
 
                 Button changePass = new Button("Сменить пароль");
                 changePass.setEnabled(false);
@@ -240,7 +376,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         MenuBar.Command printGroup = new MenuBar.Command() {
             @Override
             public void menuSelected(MenuBar.MenuItem selectedItem) {
-                final Window windowPrintGroup = new Window("Отчет для группы ТС");
+                final Window windowPrintGroup = new Window("Отчет для всей группы ТС");
                 windowPrintGroup.setWidth(800.0f, Unit.PIXELS);
                 windowPrintGroup.setModal(true);
                 final FormLayout formLayout = new FormLayout();
@@ -271,10 +407,23 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         statusCar.setPageLength(statusCar.size());
         
         statusCar.addValueChangeListener(new Property.ValueChangeListener() {
-
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
-                Notification.show(statusCar.getId());
+                String message = "1";
+
+                try {message = String.valueOf(event.getProperty().getValue());} catch (NumberFormatException ignored){}
+                ArrayList<Positions> positionses = dao.GetPositions(dev);
+
+                Positions pos = positionses.get(Integer.parseInt(message) - 1);
+                googleMap.setCenter(new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())));
+
+                Collection points = googleMap.getMarkers();
+                for (Object marker : points) {
+                    googleMap.removeMarker((GoogleMapMarker) marker);
+                }
+                googleMap.addMarker(dev, new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())), false, null);
+
+                Notification.show("Транспортное средство: " + dev + ", lat: " + pos.getLatitude() + ", lon: " + pos.getLongitude());
             }
         });
         main.addComponent(statusCar);
@@ -290,18 +439,38 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                 statusCar.removeAllItems();
             }
             ArrayList<Positions> positionses = dao.GetPositions(selectedItem.getText());
-            Positions first = positionses.get(positionses.size() - 1);
-            googleMap.setCenter(new LatLon(Double.parseDouble(first.getLatitude()), Double.parseDouble(first.getLongitude())));
-            Collection points = googleMap.getMarkers();
-            for (Object marker : points) {
-                googleMap.removeMarker((GoogleMapMarker) marker);
+            dev = selectedItem.getText();
+            if (positionses.size() != 0) {
+                Positions first = positionses.get(0);
+                googleMap.setCenter(new LatLon(Double.parseDouble(first.getLatitude()), Double.parseDouble(first.getLongitude())));
+                Collection points = googleMap.getMarkers();
+                for (Object marker : points) {
+                    googleMap.removeMarker((GoogleMapMarker) marker);
+                }
+                googleMap.addMarker(selectedItem.getText(), new LatLon(Double.parseDouble(first.getLatitude()), Double.parseDouble(first.getLongitude())), false, null);
+                int k = 1;
+                for (Positions position : positionses) {
+                    statusCar.addItem(new Object[]{position.getLatitude(), position.getLongitude(), position.getCourse(), position.getSpeed(), position.getTime()}, k);
+                    k++;
+                }
+            } else {
+                Collection points = googleMap.getMarkers();
+                for (Object marker : points) {
+                    googleMap.removeMarker((GoogleMapMarker) marker);
+                }
+                Notification.show("Для данного ТС нет данных");
             }
-            googleMap.addMarker(selectedItem.getText(), new LatLon(Double.parseDouble(first.getLatitude()), Double.parseDouble(first.getLongitude())), false, null);
-            int k = 1;
-            for (Positions position : positionses) {
-                statusCar.addItem(new Object[]{position.getLatitude(), position.getLongitude(), position.getCourse(), position.getSpeed(), position.getTime()}, k);
-                k++;
-            }
+        }
+    }
+
+    private class SetPathDevice implements MenuBar.Command{
+
+        @Override
+        public void menuSelected(MenuBar.MenuItem menuItem) {
+            ArrayList<LatLon> pathPoints = dao.GetPathDevice(dev);
+            try{googleMap.removePolyline(polyline);} catch (NullPointerException e){}
+            polyline = new GoogleMapPolyline(pathPoints, "#ff0000", 0.5, 5);
+            googleMap.addPolyline(polyline);
         }
     }
 

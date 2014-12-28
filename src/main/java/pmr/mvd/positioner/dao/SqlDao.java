@@ -1,6 +1,7 @@
 package pmr.mvd.positioner.dao;
 
 
+import com.vaadin.tapio.googlemaps.client.LatLon;
 import pmr.mvd.positioner.bean.Devices;
 import pmr.mvd.positioner.bean.Positions;
 import pmr.mvd.positioner.bean.Report;
@@ -10,10 +11,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class SqlDao {
-    MySQLConnector sqlConnector = new MySQLConnector();
+    private MySQLConnector sqlConnector = new MySQLConnector();
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 
     public SqlDao(){
         sqlConnector.setHostname("jdbc:mysql://127.0.0.1:3306/traccar");
@@ -101,7 +105,7 @@ public class SqlDao {
             if (device.equals(""))
                 query = "select * from positions order by id desc limit 20";
             else
-                query = "select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + device + "'";
+                query = "select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + device + "' order by positions.id desc";
 
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()){
@@ -115,9 +119,10 @@ public class SqlDao {
                 bean.setOther(resultSet.getString("other"));
                 bean.setPower(resultSet.getString("power"));
                 bean.setSpeed(resultSet.getString("speed"));
-                bean.setTime(String.valueOf(resultSet.getTime("time")));
+                bean.setTime(resultSet.getString("time"));
                 bean.setValid(resultSet.getString("valid"));
                 bean.setDeviceId(resultSet.getString("device_id"));
+
                 result.add(bean);
             }
             statement.close();
@@ -143,6 +148,54 @@ public class SqlDao {
                 report.setNumber(resultSet.getString("id"));
                 report.setVelocity(resultSet.getString("speed"));
                 result.add(report);
+            }
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public void AddNewDevice(String name, String id){
+        String query = "insert into devices(name,uniqueId) values('" + name + "','" + id +"')";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void DelDevice(String name){
+        String query = "delete from devices where name='" + name + "'";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ArrayList<LatLon> GetPathDevice(String dev) {
+        ArrayList<LatLon> result = new ArrayList<LatLon>();
+        String now = sdf.format(new Date());
+        String query = " select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + dev + "' and time like '" + now + "%' order by positions.id desc";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()){
+                LatLon latLon = new LatLon();
+                latLon.setLat(Double.parseDouble(resultSet.getString("latitude")));
+                latLon.setLon(Double.parseDouble(resultSet.getString("longitude")));
+                result.add(latLon);
             }
             statement.close();
             connection.close();

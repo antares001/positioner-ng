@@ -105,7 +105,11 @@
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
-		
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-push</artifactId>
+            <version>${vaadin.version}</version>
+        </dependency>
 	</dependencies>
 
 	<build>
