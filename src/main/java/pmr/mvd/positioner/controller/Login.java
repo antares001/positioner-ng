@@ -5,6 +5,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.bean.UserSettings;
 import pmr.mvd.positioner.dao.SqlDao;
+import pmr.mvd.positioner.utils.HiddenVariable;
 
 public class Login extends CustomComponent implements View, Button.ClickListener{
     public static final String NAME = "login";
@@ -54,6 +55,9 @@ public class Login extends CustomComponent implements View, Button.ClickListener
         try {
             UserSettings settings = dao.GetUserSetting(username);
             if (pass.equals(settings.getPassword())) {
+                HiddenVariable hidden = HiddenVariable.getInstance();
+                hidden.pullDown("isAdmin", settings.getGroup());
+
                 getSession().setAttribute("user", username);
                 getUI().getNavigator().navigateTo(MainView.NAME);
             } else {

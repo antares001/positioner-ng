@@ -17,12 +17,12 @@ import java.util.Date;
 
 public class SqlDao {
     private MySQLConnector sqlConnector = new MySQLConnector();
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public SqlDao(){
-        sqlConnector.setHostname("jdbc:mysql://127.0.0.1:3306/traccar");
-        sqlConnector.setUsername("root");
-        sqlConnector.setPassword("oopwdlin357");
+        sqlConnector.setHostname("jdbc:mysql://tirgps.ddns.net:3306/traccar");
+        sqlConnector.setUsername("traccar");
+        sqlConnector.setPassword("traccar123");
     }
 
     public UserSettings GetUserSetting(String username){
@@ -105,7 +105,7 @@ public class SqlDao {
             if (device.equals(""))
                 query = "select * from positions order by id desc limit 20";
             else
-                query = "select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + device + "' order by positions.id desc";
+                query = "select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + device + "' order by positions.id desc limit 300";
 
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()){
@@ -186,7 +186,7 @@ public class SqlDao {
     public ArrayList<LatLon> GetPathDevice(String dev) {
         ArrayList<LatLon> result = new ArrayList<LatLon>();
         String now = sdf.format(new Date());
-        String query = " select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + dev + "' and time like '" + now + "%' order by positions.id desc";
+        String query = " select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + dev + "' order by positions.id desc limit 300";
         try {
             Connection connection = sqlConnector.getConnect();
             Statement statement = connection.createStatement();

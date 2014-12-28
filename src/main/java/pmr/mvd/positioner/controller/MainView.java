@@ -18,6 +18,7 @@ import pmr.mvd.positioner.bean.Positions;
 import pmr.mvd.positioner.bean.Report;
 import pmr.mvd.positioner.bean.UserSettings;
 import pmr.mvd.positioner.dao.SqlDao;
+import pmr.mvd.positioner.utils.HiddenVariable;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -61,7 +62,239 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         tracks.addItem("Показать трек выбранного ТС", new SetPathDevice());
         //tracks.addItem("Задать период отображения трека", null);
 
-        MenuBar.MenuItem admins = menuBar.addItem("Администрирование",null);
+        //if (isAdmin.equals("1")) {
+            MenuBar.MenuItem admins = menuBar.addItem("Администрирование", null);
+
+            MenuBar.Command addTs = new MenuBar.Command() {
+                @Override
+                public void menuSelected(MenuBar.MenuItem selectedItem) {
+                    final Window windowAddTs = new Window("Управление транспортными средствами");
+                    windowAddTs.setWidth(600.0f, Unit.PIXELS);
+                    windowAddTs.setHeight(400.0f, Unit.PIXELS);
+                    windowAddTs.setModal(true);
+                    final FormLayout formLayout = new FormLayout();
+
+                    VerticalLayout verticalLayout = new VerticalLayout();
+
+                    Table tabDevice = new Table("Транспортные средства");
+                    tabDevice.setSelectable(true);
+
+                    tabDevice.addContainerProperty("id",String.class, null);
+                    tabDevice.addContainerProperty("Имя", String.class, null);
+                    tabDevice.addContainerProperty("Уникальный идентификатор", String.class, null);
+
+                    ArrayList<Devices> devices = dao.GetDevices();
+                    for (Devices device : devices){
+                        try {
+                            String id = device.getId();
+                            String name = device.getName();
+                            String positions = device.getUniq();
+
+                            Object newItem = tabDevice.addItem();
+                            Item row = tabDevice.getItem(newItem);
+                            row.getItemProperty("id").setValue(id);
+                            row.getItemProperty("Имя").setValue(name);
+                            row.getItemProperty("Уникальный идентификатор").setValue(positions);
+                        }catch (NullPointerException ignored){}
+                    }
+
+                    tabDevice.setPageLength(5);
+                    tabDevice.setSizeFull();
+
+                    verticalLayout.addComponent(tabDevice);
+
+                    final CustomLayout custom = new CustomLayout("buttons");
+
+                    Button addNewDevice = new Button("Добавить", new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent clickEvent) {
+                            final Window addTs = new Window("Добавить");
+                            final FormLayout formLayout = new FormLayout();
+                            addTs.setWidth(400.0f, Unit.PIXELS);
+                            addTs.setHeight(200.0f, Unit.PIXELS);
+                            addTs.setModal(true);
+
+                            final CustomLayout layout = new CustomLayout("newuser");
+
+                            final TextField username = new TextField();
+                            layout.addComponent(username, "nameInput");
+
+                            final TextField idname = new TextField();
+                            layout.addComponent(idname, "idInput");
+
+                            final Button add = new Button("Добавить", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    if (username.getValue().equals("")){
+                                        Notification.show("Не введено имя транспортного средства");
+                                    } else if (idname.getValue().equals("")){
+                                        Notification.show("Не введен уникальный идентификатор");
+                                    } else {
+                                        dao.AddNewDevice(username.getValue(), idname.getValue());
+                                        addTs.close();
+                                    }
+                                }
+                            });
+                            layout.addComponent(add, "addbutton");
+
+                            Button close = new Button("Закрыть", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    addTs.close();
+                                }
+                            });
+                            layout.addComponent(close, "close");
+
+                            formLayout.addComponent(layout);
+
+                            addTs.setContent(formLayout);
+                            UI.getCurrent().addWindow(addTs);
+                        }
+                    });
+
+                    final Button deleteDevice = new Button("Удалить", new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent clickEvent) {
+                            ArrayList<Devices> devices = dao.GetDevices();
+                            try {
+                                Devices d = devices.get(Integer.parseInt(delDev) - 1);
+                                dao.DelDevice(d.getName());
+                                Notification.show("Удалено транс. средство: " + d.getName() + "");
+                            } catch (Exception e){
+                                Notification.show("ТС уже удалено");
+                            }
+                        }
+                    });
+                    deleteDevice.setEnabled(false);
+
+                    tabDevice.addValueChangeListener(new Property.ValueChangeListener() {
+                        @Override
+                        public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                            deleteDevice.setEnabled(true);
+                            delDev = String.valueOf(valueChangeEvent.getProperty().getValue());
+                        }
+                    });
+
+                    Button exit = new Button("Закрыть",new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent event) {
+                            windowAddTs.close();
+                        }
+                    });
+
+                    custom.addComponent(addNewDevice, "addButton");
+                    custom.addComponent(deleteDevice, "deleteButton");
+                    custom.addComponent(exit, "close");
+
+                    verticalLayout.addComponent(custom);
+
+                    formLayout.addComponent(verticalLayout);
+
+                    windowAddTs.setContent(formLayout);
+                    UI.getCurrent().addWindow(windowAddTs);
+                }
+            };
+            admins.addItem("Транспортные средства", addTs);
+
+            MenuBar.Command addUser = new MenuBar.Command() {
+                @Override
+                public void menuSelected(MenuBar.MenuItem selectedItem) {
+                    final Window windowAddUser = new Window("Управление пользователями");
+                    windowAddUser.setWidth(800.0f, Unit.PIXELS);
+                    windowAddUser.setHeight(400.0f, Unit.PIXELS);
+                    windowAddUser.setModal(true);
+                    final FormLayout formLayout = new FormLayout();
+
+                    VerticalLayout vertical = new VerticalLayout();
+
+                    Table tabUsers = new Table("Пользователи");
+                    tabUsers.setSelectable(true);
+
+                    tabUsers.addContainerProperty("Логин", String.class, null);
+                    tabUsers.addContainerProperty("Группа", String.class, null);
+
+                    ArrayList<UserSettings> users = dao.GetUsers();
+                    for(UserSettings settings : users){
+                        String group = settings.getGroup();
+                        if (group.equals("1"))
+                            group = "Администратор";
+                        else if (group.equals("0"))
+                            group = "Пользователь";
+
+                        Object newItem = tabUsers.addItem();
+                        Item row = tabUsers.getItem(newItem);
+                        row.getItemProperty("Логин").setValue(settings.getUsername());
+                        row.getItemProperty("Группа").setValue(group);
+                    }
+
+                    tabUsers.setPageLength(5);
+                    tabUsers.setSizeFull();
+
+                    vertical.addComponent(tabUsers);
+
+                    final CustomLayout custom = new CustomLayout("buttons");
+
+                    Button addNewUser = new Button("Добавить", new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent clickEvent) {
+                            final Window addUser = new Window("Добавить");
+                            addUser.setWidth(400.0f, Unit.PIXELS);
+                            addUser.setHeight(200.0f, Unit.PIXELS);
+                            addUser.setModal(true);
+
+                            final FormLayout formLayout = new FormLayout();
+
+                            addUser.setContent(formLayout);
+                            UI.getCurrent().addWindow(addUser);
+                        }
+                    });
+
+                    Button changePass = new Button("Сменить пароль");
+                    changePass.setEnabled(false);
+
+                    Button changeGroup = new Button("Сменить группу");
+                    changeGroup.setEnabled(false);
+
+                    Button delete = new Button("Удалить");
+                    delete.setEnabled(false);
+
+                    Button exit = new Button("Закрыть",new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent event) {
+                            windowAddUser.close();
+                        }
+                    });
+
+                    custom.addComponent(addNewUser, "addButton");
+                    custom.addComponent(changePass, "changePass");
+                    custom.addComponent(changeGroup, "changeGroup");
+                    custom.addComponent(delete, "deleteButton");
+                    custom.addComponent(exit, "close");
+
+                    vertical.addComponent(custom);
+
+                    formLayout.addComponent(vertical);
+
+                    windowAddUser.setContent(formLayout);
+                    UI.getCurrent().addWindow(windowAddUser);
+                }
+            };
+            admins.addItem("Пользователи", addUser);
+
+            MenuBar.Command control = new MenuBar.Command() {
+                @Override
+                public void menuSelected(MenuBar.MenuItem selectedItem) {
+                    final Window windowControl = new Window("Управление");
+                    windowControl.setWidth(800.0f, Unit.PIXELS);
+                    windowControl.setHeight(600.0f, Unit.PIXELS);
+                    windowControl.setModal(true);
+                    final FormLayout formLayout = new FormLayout();
+                    windowControl.setContent(formLayout);
+                    UI.getCurrent().addWindow(windowControl);
+                }
+            };
+            admins.addItem("Управление системой", control);
+        //}
         MenuBar.MenuItem print = menuBar.addItem("Отчеты",null);
 
         MenuBar.Command exitCommand = new MenuBar.Command() {
@@ -73,236 +306,6 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         };
 
         MenuBar.MenuItem exit = menuBar.addItem("Выход", exitCommand);
-
-        MenuBar.Command addTs = new MenuBar.Command() {
-            @Override
-            public void menuSelected(MenuBar.MenuItem selectedItem) {
-                final Window windowAddTs = new Window("Управление транспортными средствами");
-                windowAddTs.setWidth(600.0f, Unit.PIXELS);
-                windowAddTs.setHeight(400.0f, Unit.PIXELS);
-                windowAddTs.setModal(true);
-                final FormLayout formLayout = new FormLayout();
-
-                VerticalLayout verticalLayout = new VerticalLayout();
-
-                Table tabDevice = new Table("Транспортные средства");
-                tabDevice.setSelectable(true);
-
-                tabDevice.addContainerProperty("id",String.class, null);
-                tabDevice.addContainerProperty("Имя", String.class, null);
-                tabDevice.addContainerProperty("Уникальный идентификатор", String.class, null);
-
-                ArrayList<Devices> devices = dao.GetDevices();
-                for (Devices device : devices){
-                    try {
-                        String id = device.getId();
-                        String name = device.getName();
-                        String positions = device.getUniq();
-
-                        Object newItem = tabDevice.addItem();
-                        Item row = tabDevice.getItem(newItem);
-                        row.getItemProperty("id").setValue(id);
-                        row.getItemProperty("Имя").setValue(name);
-                        row.getItemProperty("Уникальный идентификатор").setValue(positions);
-                    }catch (NullPointerException ignored){}
-                }
-
-                tabDevice.setPageLength(5);
-                tabDevice.setSizeFull();
-
-                verticalLayout.addComponent(tabDevice);
-
-                final CustomLayout custom = new CustomLayout("buttons");
-
-                Button addNewDevice = new Button("Добавить", new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent clickEvent) {
-                        final Window addTs = new Window("Добавить");
-                        final FormLayout formLayout = new FormLayout();
-                        addTs.setWidth(400.0f, Unit.PIXELS);
-                        addTs.setHeight(200.0f, Unit.PIXELS);
-                        addTs.setModal(true);
-
-                        final CustomLayout layout = new CustomLayout("newuser");
-
-                        final TextField username = new TextField();
-                        layout.addComponent(username, "nameInput");
-
-                        final TextField idname = new TextField();
-                        layout.addComponent(idname, "idInput");
-
-                        final Button add = new Button("Добавить", new Button.ClickListener() {
-                            @Override
-                            public void buttonClick(Button.ClickEvent clickEvent) {
-                                if (username.getValue().equals("")){
-                                    Notification.show("Не введено имя транспортного средства");
-                                } else if (idname.getValue().equals("")){
-                                    Notification.show("Не введен уникальный идентификатор");
-                                } else {
-                                    dao.AddNewDevice(username.getValue(), idname.getValue());
-                                    addTs.close();
-                                }
-                            }
-                        });
-                        layout.addComponent(add, "addbutton");
-
-                        Button close = new Button("Закрыть", new Button.ClickListener() {
-                            @Override
-                            public void buttonClick(Button.ClickEvent clickEvent) {
-                                addTs.close();
-                            }
-                        });
-                        layout.addComponent(close, "close");
-
-                        formLayout.addComponent(layout);
-
-                        addTs.setContent(formLayout);
-                        UI.getCurrent().addWindow(addTs);
-                    }
-                });
-
-                final Button deleteDevice = new Button("Удалить", new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent clickEvent) {
-                        ArrayList<Devices> devices = dao.GetDevices();
-                        try {
-                            Devices d = devices.get(Integer.parseInt(delDev) - 1);
-                            dao.DelDevice(d.getName());
-                            Notification.show("Удалено транс. средство: " + d.getName() + "");
-                        } catch (Exception e){
-                            Notification.show("ТС уже удалено");
-                        }
-                    }
-                });
-                deleteDevice.setEnabled(false);
-
-                tabDevice.addValueChangeListener(new Property.ValueChangeListener() {
-                    @Override
-                    public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-                        deleteDevice.setEnabled(true);
-                        delDev = String.valueOf(valueChangeEvent.getProperty().getValue());
-                    }
-                });
-
-                Button exit = new Button("Закрыть",new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent event) {
-                        windowAddTs.close();
-                    }
-                });
-
-                custom.addComponent(addNewDevice, "addButton");
-                custom.addComponent(deleteDevice, "deleteButton");
-                custom.addComponent(exit, "close");
-
-                verticalLayout.addComponent(custom);
-
-                formLayout.addComponent(verticalLayout);
-
-                windowAddTs.setContent(formLayout);
-                UI.getCurrent().addWindow(windowAddTs);
-            }
-        };
-        admins.addItem("Транспортные средства", addTs);
-
-        MenuBar.Command addUser = new MenuBar.Command() {
-            @Override
-            public void menuSelected(MenuBar.MenuItem selectedItem) {
-                final Window windowAddUser = new Window("Управление пользователями");
-                windowAddUser.setWidth(800.0f, Unit.PIXELS);
-                windowAddUser.setHeight(400.0f, Unit.PIXELS);
-                windowAddUser.setModal(true);
-                final FormLayout formLayout = new FormLayout();
-
-                VerticalLayout vertical = new VerticalLayout();
-
-                Table tabUsers = new Table("Пользователи");
-                tabUsers.setSelectable(true);
-
-                tabUsers.addContainerProperty("Логин", String.class, null);
-                tabUsers.addContainerProperty("Группа", String.class, null);
-
-                ArrayList<UserSettings> users = dao.GetUsers();
-                for(UserSettings settings : users){
-                    String group = settings.getGroup();
-                    if (group.equals("1"))
-                        group = "Администратор";
-                    else if (group.equals("0"))
-                        group = "Пользователь";
-
-                    Object newItem = tabUsers.addItem();
-                    Item row = tabUsers.getItem(newItem);
-                    row.getItemProperty("Логин").setValue(settings.getUsername());
-                    row.getItemProperty("Группа").setValue(group);
-                }
-
-                tabUsers.setPageLength(5);
-                tabUsers.setSizeFull();
-
-                vertical.addComponent(tabUsers);
-
-                final CustomLayout custom = new CustomLayout("buttons");
-
-                Button addNewUser = new Button("Добавить", new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent clickEvent) {
-                        final Window addUser = new Window("Добавить");
-                        addUser.setWidth(400.0f, Unit.PIXELS);
-                        addUser.setHeight(200.0f, Unit.PIXELS);
-                        addUser.setModal(true);
-
-                        final FormLayout formLayout = new FormLayout();
-
-                        addUser.setContent(formLayout);
-                        UI.getCurrent().addWindow(addUser);
-                    }
-                });
-
-                Button changePass = new Button("Сменить пароль");
-                changePass.setEnabled(false);
-
-                Button changeGroup = new Button("Сменить группу");
-                changeGroup.setEnabled(false);
-
-                Button delete = new Button("Удалить");
-                delete.setEnabled(false);
-
-                Button exit = new Button("Закрыть",new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent event) {
-                        windowAddUser.close();
-                    }
-                });
-
-                custom.addComponent(addNewUser, "addButton");
-                custom.addComponent(changePass, "changePass");
-                custom.addComponent(changeGroup, "changeGroup");
-                custom.addComponent(delete, "deleteButton");
-                custom.addComponent(exit, "close");
-
-                vertical.addComponent(custom);
-
-                formLayout.addComponent(vertical);
-
-                windowAddUser.setContent(formLayout);
-                UI.getCurrent().addWindow(windowAddUser);
-            }
-        };
-        admins.addItem("Пользователи", addUser);
-
-        MenuBar.Command control = new MenuBar.Command() {
-            @Override
-            public void menuSelected(MenuBar.MenuItem selectedItem) {
-                final Window windowControl = new Window("Управление");
-                windowControl.setWidth(800.0f, Unit.PIXELS);
-                windowControl.setHeight(600.0f, Unit.PIXELS);
-                windowControl.setModal(true);
-                final FormLayout formLayout = new FormLayout();
-                windowControl.setContent(formLayout);
-                UI.getCurrent().addWindow(windowControl);
-            }
-        };
-        admins.addItem("Управление системой", control);
 
         /**
          * Окно для задания параметров печати отчета для одного транспортного средства.
