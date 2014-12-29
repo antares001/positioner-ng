@@ -31,4 +31,6 @@
 
 
     <inherits name="com.vaadin.tapio.googlemaps.Widgetset" />
+
+    <inherits name="com.github.wolfie.refresher.RefresherWidgetset" />
 </module>

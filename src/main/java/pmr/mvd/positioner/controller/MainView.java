@@ -1,11 +1,13 @@
 package pmr.mvd.positioner.controller;
 
+import com.github.wolfie.refresher.Refresher;
 import com.vaadin.annotations.Push;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.tapio.googlemaps.GoogleMap;
@@ -13,10 +15,7 @@ import com.vaadin.tapio.googlemaps.client.LatLon;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
-import pmr.mvd.positioner.bean.Devices;
-import pmr.mvd.positioner.bean.Positions;
-import pmr.mvd.positioner.bean.Report;
-import pmr.mvd.positioner.bean.UserSettings;
+import pmr.mvd.positioner.bean.*;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
@@ -43,7 +42,19 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
     private List<Component> layers = new LinkedList<Component>();
 
+    private String databaseResult;
+
     public MainView(){
+        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
+        String isAdmin = "0";
+        String username = "";
+        try{
+            isAdmin = hidden.pullUp("admin");
+            username = hidden.pullUp("username");
+            if (null == isAdmin)
+                isAdmin = "0";
+        }catch (NullPointerException ignored){}
+
         final VerticalLayout main = new VerticalLayout();
         main.setSpacing(true);
 
@@ -62,7 +73,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         tracks.addItem("Показать трек выбранного ТС", new SetPathDevice());
         //tracks.addItem("Задать период отображения трека", null);
 
-        //if (isAdmin.equals("1")) {
+        if (isAdmin.equals("1")) {
             MenuBar.MenuItem admins = menuBar.addItem("Администрирование", null);
 
             MenuBar.Command addTs = new MenuBar.Command() {
@@ -294,7 +305,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                 }
             };
             admins.addItem("Управление системой", control);
-        //}
+        }
         MenuBar.MenuItem print = menuBar.addItem("Отчеты",null);
 
         MenuBar.Command exitCommand = new MenuBar.Command() {
@@ -395,6 +406,13 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         googleMap.setSizeFull();
         googleMap.setHeight("700px");
 
+        ArrayList<DevPoint> points = dao.getLastPosition(username);
+        if (points.size() != 0) {
+            for (DevPoint point : points) {
+                googleMap.addMarker(point.getName(), new LatLon(Double.parseDouble(point.getLat()), Double.parseDouble(point.getLon())), false, null);
+            }
+        }
+
         main.addComponent(googleMap);
 
         statusCar.setSelectable(true);
@@ -417,16 +435,18 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                 try {message = String.valueOf(event.getProperty().getValue());} catch (NumberFormatException ignored){}
                 ArrayList<Positions> positionses = dao.GetPositions(dev);
 
-                Positions pos = positionses.get(Integer.parseInt(message) - 1);
-                googleMap.setCenter(new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())));
+                try {
+                    Positions pos = positionses.get(Integer.parseInt(message) - 1);
+                    googleMap.setCenter(new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())));
 
-                Collection points = googleMap.getMarkers();
-                for (Object marker : points) {
-                    googleMap.removeMarker((GoogleMapMarker) marker);
-                }
-                googleMap.addMarker(dev, new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())), false, null);
+                    Collection points = googleMap.getMarkers();
+                    for (Object marker : points) {
+                        googleMap.removeMarker((GoogleMapMarker) marker);
+                    }
+                    googleMap.addMarker(dev, new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())), false, null);
 
-                Notification.show("Транспортное средство: " + dev + ", lat: " + pos.getLatitude() + ", lon: " + pos.getLongitude());
+                    Notification.show("Транспортное средство: " + dev + ", lat: " + pos.getLatitude() + ", lon: " + pos.getLongitude());
+                } catch (NumberFormatException ignored){}
             }
         });
         main.addComponent(statusCar);
@@ -447,6 +467,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                 Positions first = positionses.get(0);
                 googleMap.setCenter(new LatLon(Double.parseDouble(first.getLatitude()), Double.parseDouble(first.getLongitude())));
                 Collection points = googleMap.getMarkers();
+
                 for (Object marker : points) {
                     googleMap.removeMarker((GoogleMapMarker) marker);
                 }

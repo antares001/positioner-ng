@@ -2,10 +2,7 @@ package pmr.mvd.positioner.dao;
 
 
 import com.vaadin.tapio.googlemaps.client.LatLon;
-import pmr.mvd.positioner.bean.Devices;
-import pmr.mvd.positioner.bean.Positions;
-import pmr.mvd.positioner.bean.Report;
-import pmr.mvd.positioner.bean.UserSettings;
+import pmr.mvd.positioner.bean.*;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -196,6 +193,34 @@ public class SqlDao {
                 latLon.setLat(Double.parseDouble(resultSet.getString("latitude")));
                 latLon.setLon(Double.parseDouble(resultSet.getString("longitude")));
                 result.add(latLon);
+            }
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public ArrayList<DevPoint> getLastPosition(String username){
+        ArrayList<DevPoint> result = new ArrayList<DevPoint>();
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            String queryDevices = "select name, latestPosition_id from devices";
+            ResultSet resultSet = statement.executeQuery(queryDevices);
+            while (resultSet.next()){
+                DevPoint devPoint = new DevPoint();
+                devPoint.setName(resultSet.getString("name"));
+                String queryPos = "select latitude, longitude from positions where id='" + resultSet.getString("latestPosition_id") + "'";
+                Statement statement1 = connection.createStatement();
+                ResultSet rs = statement1.executeQuery(queryPos);
+                while (rs.next()){
+                    devPoint.setLat(rs.getString("latitude"));
+                    devPoint.setLon(rs.getString("longitude"));
+                }
+                statement1.close();
+                result.add(devPoint);
             }
             statement.close();
             connection.close();
