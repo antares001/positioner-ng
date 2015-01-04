@@ -2,10 +2,7 @@ package pmr.mvd.positioner.dao;
 
 
 import com.vaadin.tapio.googlemaps.client.LatLon;
-import pmr.mvd.positioner.bean.Devices;
-import pmr.mvd.positioner.bean.Positions;
-import pmr.mvd.positioner.bean.Report;
-import pmr.mvd.positioner.bean.UserSettings;
+import pmr.mvd.positioner.bean.*;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -17,12 +14,12 @@ import java.util.Date;
 
 public class SqlDao {
     private MySQLConnector sqlConnector = new MySQLConnector();
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public SqlDao(){
-        sqlConnector.setHostname("jdbc:mysql://127.0.0.1:3306/traccar");
-        sqlConnector.setUsername("root");
-        sqlConnector.setPassword("oopwdlin357");
+        sqlConnector.setHostname("jdbc:mysql://tirgps.ddns.net:3306/traccar");
+        sqlConnector.setUsername("traccar");
+        sqlConnector.setPassword("traccar123");
     }
 
     public UserSettings GetUserSetting(String username){
@@ -105,7 +102,7 @@ public class SqlDao {
             if (device.equals(""))
                 query = "select * from positions order by id desc limit 20";
             else
-                query = "select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + device + "' order by positions.id desc";
+                query = "select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + device + "' order by positions.id desc limit 300";
 
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()){
@@ -186,7 +183,7 @@ public class SqlDao {
     public ArrayList<LatLon> GetPathDevice(String dev) {
         ArrayList<LatLon> result = new ArrayList<LatLon>();
         String now = sdf.format(new Date());
-        String query = " select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + dev + "' and time like '" + now + "%' order by positions.id desc";
+        String query = " select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + dev + "' order by positions.id desc limit 300";
         try {
             Connection connection = sqlConnector.getConnect();
             Statement statement = connection.createStatement();
@@ -201,6 +198,68 @@ public class SqlDao {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        return result;
+    }
+
+    public ArrayList<DevPoint> getLastPosition(String username){
+        ArrayList<DevPoint> result = new ArrayList<DevPoint>();
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            String queryDevices = "select name, latestPosition_id from devices";
+            ResultSet resultSet = statement.executeQuery(queryDevices);
+            while (resultSet.next()){
+                DevPoint devPoint = new DevPoint();
+                devPoint.setName(resultSet.getString("name"));
+                String queryPos = "select latitude, longitude from positions where id='" + resultSet.getString("latestPosition_id") + "'";
+                Statement statement1 = connection.createStatement();
+                ResultSet rs = statement1.executeQuery(queryPos);
+                while (rs.next()){
+                    devPoint.setLat(rs.getString("latitude"));
+                    devPoint.setLon(rs.getString("longitude"));
+                }
+                statement1.close();
+                result.add(devPoint);
+            }
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public boolean AddNewUser(String value, String value1) {
+        boolean result;
+        String query = "insert into users(admin,login,password,userSettings_id) values(0,'" + value + "','" + value1 +"', 1)";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            statement.close();
+            connection.close();
+            result = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            result = false;
+        }
+        return result;
+    }
+
+    public boolean ChangePassword(String chUser, String value) {
+        boolean result;
+        String query = "update users set password='" + value + "' where login='" + chUser + "'";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            statement.close();
+            connection.close();
+            result = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            result = false;
         }
         return result;
     }

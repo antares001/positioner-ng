@@ -2,9 +2,11 @@ package pmr.mvd.positioner.controller;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.bean.UserSettings;
 import pmr.mvd.positioner.dao.SqlDao;
+import pmr.mvd.positioner.utils.HiddenVariable;
 
 public class Login extends CustomComponent implements View, Button.ClickListener{
     public static final String NAME = "login";
@@ -54,6 +56,9 @@ public class Login extends CustomComponent implements View, Button.ClickListener
         try {
             UserSettings settings = dao.GetUserSetting(username);
             if (pass.equals(settings.getPassword())) {
+                HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
+                hidden.pullDown("username", username);
+                hidden.pullDown("admin", settings.getGroup());
                 getSession().setAttribute("user", username);
                 getUI().getNavigator().navigateTo(MainView.NAME);
             } else {
@@ -61,6 +66,7 @@ public class Login extends CustomComponent implements View, Button.ClickListener
                 password.focus();
             }
         } catch (NullPointerException e){
+            e.printStackTrace();
             Notification.show("Нет соеднинения с БД.");
         }
     }
