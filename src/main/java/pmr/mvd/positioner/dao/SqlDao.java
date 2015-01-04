@@ -17,9 +17,9 @@ public class SqlDao {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public SqlDao(){
-        //sqlConnector.setHostname("jdbc:mysql://tirgps.ddns.net:3306/traccar");
-        //sqlConnector.setUsername("traccar");
-        //sqlConnector.setPassword("traccar123");
+        sqlConnector.setHostname("jdbc:mysql://tirgps.ddns.net:3306/traccar");
+        sqlConnector.setUsername("traccar");
+        sqlConnector.setPassword("traccar123");
     }
 
     public UserSettings GetUserSetting(String username){
