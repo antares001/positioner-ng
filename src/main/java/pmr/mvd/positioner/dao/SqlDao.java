@@ -17,9 +17,9 @@ public class SqlDao {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public SqlDao(){
-        sqlConnector.setHostname("jdbc:mysql://tirgps.ddns.net:3306/traccar");
-        sqlConnector.setUsername("traccar");
-        sqlConnector.setPassword("traccar123");
+        //sqlConnector.setHostname("jdbc:mysql://tirgps.ddns.net:3306/traccar");
+        //sqlConnector.setUsername("traccar");
+        //sqlConnector.setPassword("traccar123");
     }
 
     public UserSettings GetUserSetting(String username){
@@ -226,6 +226,40 @@ public class SqlDao {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        return result;
+    }
+
+    public boolean AddNewUser(String value, String value1) {
+        boolean result;
+        String query = "insert into users(admin,login,password,userSettings_id) values(0,'" + value + "','" + value1 +"', 1)";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            statement.close();
+            connection.close();
+            result = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            result = false;
+        }
+        return result;
+    }
+
+    public boolean ChangePassword(String chUser, String value) {
+        boolean result;
+        String query = "update users set password='" + value + "' where login='" + chUser + "'";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            statement.close();
+            connection.close();
+            result = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            result = false;
         }
         return result;
     }

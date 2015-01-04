@@ -5,9 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class MySQLConnector {
-    private String hostname = "127.0.0.1";
+    private String hostname = "jdbc:mysql://127.0.0.1:3306/traccar";
     private String username = "root";
-    private String password= "";
+    private String password= "oopwdlin357";
 
     public void setHostname(String arg){
         this.hostname = arg;

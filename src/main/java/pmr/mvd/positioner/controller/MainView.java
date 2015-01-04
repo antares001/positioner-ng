@@ -224,7 +224,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                     tabUsers.addContainerProperty("Логин", String.class, null);
                     tabUsers.addContainerProperty("Группа", String.class, null);
 
-                    ArrayList<UserSettings> users = dao.GetUsers();
+                    final ArrayList<UserSettings> users = dao.GetUsers();
                     for(UserSettings settings : users){
                         String group = settings.getGroup();
                         if (group.equals("1"))
@@ -249,25 +249,144 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                         @Override
                         public void buttonClick(Button.ClickEvent clickEvent) {
                             final Window addUser = new Window("Добавить");
-                            addUser.setWidth(400.0f, Unit.PIXELS);
-                            addUser.setHeight(200.0f, Unit.PIXELS);
+                            addUser.setWidth(500.0f, Unit.PIXELS);
+                            addUser.setHeight(300.0f, Unit.PIXELS);
                             addUser.setModal(true);
 
                             final FormLayout formLayout = new FormLayout();
+                            final CustomLayout customLayout = new CustomLayout("adduser");
 
+                            final TextField userName = new TextField();
+                            customLayout.addComponent(userName, "name");
+
+                            final PasswordField passWord = new PasswordField();
+                            customLayout.addComponent(passWord, "password");
+
+                            final PasswordField repeatPass = new PasswordField();
+                            customLayout.addComponent(repeatPass, "repeat");
+
+                            final Button addNewUser = new Button("Добавить", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    if (userName.getValue().equals(""))
+                                        Notification.show("Введите имя пользователя");
+                                    else if (passWord.getValue().equals(""))
+                                        Notification.show("Введите пароль");
+                                    else if (repeatPass.getValue().equals(""))
+                                        Notification.show("Повторите пароль");
+                                    else if (!passWord.getValue().equals(repeatPass.getValue()))
+                                        Notification.show("Пароли не совпадают");
+                                    else {
+                                        boolean existsUser = true;
+                                        for (UserSettings user : users) {
+                                            if (user.getUsername().equals(userName.getValue()))
+                                                existsUser = false;
+                                        }
+
+                                        if (existsUser) {
+                                            if (dao.AddNewUser(userName.getValue(), passWord.getValue())) {
+                                                addUser.close();
+                                            } else {
+                                                Notification.show("Ошибка добавления пользователя");
+                                            }
+                                        } else
+                                            Notification.show("Пользователь существует");
+                                    }
+                                }
+                            });
+                            customLayout.addComponent(addNewUser, "addbutton");
+
+                            final Button closeNewUser = new Button("Отмена", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    addUser.close();
+                                }
+                            });
+                            customLayout.addComponent(closeNewUser, "close");
+
+                            formLayout.addComponent(customLayout);
                             addUser.setContent(formLayout);
                             UI.getCurrent().addWindow(addUser);
                         }
                     });
 
-                    Button changePass = new Button("Сменить пароль");
+                    final Button changePass = new Button("Сменить пароль", new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent clickEvent) {
+                            final String chUser = "";
+                            final Window winChangePass = new Window("Смена пароля пользователя ");
+                            winChangePass.setWidth(500.0f, Unit.PIXELS);
+                            winChangePass.setHeight(200.0f, Unit.PIXELS);
+                            winChangePass.setModal(true);
+
+                            final FormLayout fLayout = new FormLayout();
+                            final CustomLayout chPass = new CustomLayout("changepass");
+
+                            final PasswordField chPassText = new PasswordField();
+                            chPass.addComponent(chPassText, "password");
+
+                            final PasswordField chRepeatText = new PasswordField();
+                            chPass.addComponent(chRepeatText, "repeat");
+
+                            final Button changePassButton = new Button("Сменить", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    if (chPassText.getValue().equals(""))
+                                        Notification.show("Введите пароль");
+                                    else if (chRepeatText.getValue().equals(""))
+                                        Notification.show("Повторите пароль");
+                                    else if (!chPassText.getValue().equals(chRepeatText.getValue()))
+                                        Notification.show("Пароли не совпадают");
+                                    else {
+                                        if (dao.ChangePassword(chUser, chPassText.getValue()))
+                                            winChangePass.close();
+                                        else
+                                            Notification.show("Ошибка смены пароля");
+                                    }
+                                }
+                            });
+                            chPass.addComponent(changePassButton, "addbutton");
+
+                            final Button closeChangePass = new Button("Отмена", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    winChangePass.close();
+                                }
+                            });
+                            chPass.addComponent(closeChangePass, "close");
+
+                            fLayout.addComponent(chPass);
+                            winChangePass.setContent(fLayout);
+                            UI.getCurrent().addWindow(winChangePass);
+                        }
+                    });
                     changePass.setEnabled(false);
 
-                    Button changeGroup = new Button("Сменить группу");
+                    final Button changeGroup = new Button("Сменить группу", new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent clickEvent) {
+                            Notification.show("Смена группы");
+                        }
+                    });
                     changeGroup.setEnabled(false);
 
-                    Button delete = new Button("Удалить");
+                    final Button delete = new Button("Удалить", new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent clickEvent) {
+                            Notification.show("Удаление пользователя");
+                        }
+                    });
                     delete.setEnabled(false);
+
+                    tabUsers.addValueChangeListener(new Property.ValueChangeListener() {
+                        @Override
+                        public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                            changePass.setEnabled(true);
+                            changeGroup.setEnabled(true);
+                            delete.setEnabled(true);
+                            Notification.show(String.valueOf(valueChangeEvent.getProperty().getValue()));
+                        }
+                    });
 
                     Button exit = new Button("Закрыть",new Button.ClickListener() {
                         @Override
@@ -445,7 +564,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                     }
                     googleMap.addMarker(dev, new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())), false, null);
 
-                    Notification.show("Транспортное средство: " + dev + ", lat: " + pos.getLatitude() + ", lon: " + pos.getLongitude());
+                    Notification.show("Транспортное средство: " + dev + ", широта: " + pos.getLatitude() + ", долгота: " + pos.getLongitude());
                 } catch (NumberFormatException ignored){}
             }
         });
