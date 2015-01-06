@@ -1,6 +1,5 @@
 package pmr.mvd.positioner.controller;
 
-import com.github.wolfie.refresher.Refresher;
 import com.vaadin.annotations.Push;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -16,6 +15,10 @@ import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.bean.*;
+import pmr.mvd.positioner.controller.ButtonEvents.AddUser;
+import pmr.mvd.positioner.controller.ButtonEvents.ChangeGroup;
+import pmr.mvd.positioner.controller.ButtonEvents.ChangePassword;
+import pmr.mvd.positioner.controller.ButtonEvents.DeleteUserConfirm;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
@@ -33,7 +36,6 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     private String oneLastDate = sdf.format(new Date());
     private String dev = "";
     private String delDev = "0";
-    private String selectedUser = "";
     
     private Table statusCar = new Table("Статус утройства");
     private GoogleMap googleMap = new GoogleMap(null,null,null);
@@ -246,172 +248,15 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
                     final CustomLayout custom = new CustomLayout("buttons");
 
-                    Button addNewUser = new Button("Добавить", new Button.ClickListener() {
-                        @Override
-                        public void buttonClick(Button.ClickEvent clickEvent) {
-                            final Window addUser = new Window("Добавить");
-                            addUser.setWidth(500.0f, Unit.PIXELS);
-                            addUser.setHeight(300.0f, Unit.PIXELS);
-                            addUser.setModal(true);
+                    Button addNewUser = new Button("Добавить", new AddUser());
 
-                            final FormLayout formLayout = new FormLayout();
-                            final CustomLayout customLayout = new CustomLayout("adduser");
-
-                            final TextField userName = new TextField();
-                            customLayout.addComponent(userName, "name");
-
-                            final PasswordField passWord = new PasswordField();
-                            customLayout.addComponent(passWord, "password");
-
-                            final PasswordField repeatPass = new PasswordField();
-                            customLayout.addComponent(repeatPass, "repeat");
-
-                            final Button addNewUser = new Button("Добавить", new Button.ClickListener() {
-                                @Override
-                                public void buttonClick(Button.ClickEvent clickEvent) {
-                                    if (userName.getValue().equals(""))
-                                        Notification.show("Введите имя пользователя");
-                                    else if (passWord.getValue().equals(""))
-                                        Notification.show("Введите пароль");
-                                    else if (repeatPass.getValue().equals(""))
-                                        Notification.show("Повторите пароль");
-                                    else if (!passWord.getValue().equals(repeatPass.getValue()))
-                                        Notification.show("Пароли не совпадают");
-                                    else {
-                                        boolean existsUser = true;
-                                        for (UserSettings user : users) {
-                                            if (user.getUsername().equals(userName.getValue()))
-                                                existsUser = false;
-                                        }
-
-                                        if (existsUser) {
-                                            if (dao.AddNewUser(userName.getValue(), passWord.getValue())) {
-                                                addUser.close();
-                                            } else {
-                                                Notification.show("Ошибка добавления пользователя");
-                                            }
-                                        } else
-                                            Notification.show("Пользователь существует");
-                                    }
-                                }
-                            });
-                            customLayout.addComponent(addNewUser, "addbutton");
-
-                            final Button closeNewUser = new Button("Отмена", new Button.ClickListener() {
-                                @Override
-                                public void buttonClick(Button.ClickEvent clickEvent) {
-                                    addUser.close();
-                                }
-                            });
-                            customLayout.addComponent(closeNewUser, "close");
-
-                            formLayout.addComponent(customLayout);
-                            addUser.setContent(formLayout);
-                            UI.getCurrent().addWindow(addUser);
-                        }
-                    });
-
-                    final Button changePass = new Button("Сменить пароль", new Button.ClickListener() {
-                        @Override
-                        public void buttonClick(Button.ClickEvent clickEvent) {
-                            final Window winChangePass = new Window("Смена пароля пользователя " + hidden.pullUp("selected_user"));
-                            winChangePass.setWidth(500.0f, Unit.PIXELS);
-                            winChangePass.setHeight(200.0f, Unit.PIXELS);
-                            winChangePass.setModal(true);
-
-                            final FormLayout fLayout = new FormLayout();
-                            final CustomLayout chPass = new CustomLayout("changepass");
-
-                            final PasswordField chPassText = new PasswordField();
-                            chPass.addComponent(chPassText, "password");
-
-                            final PasswordField chRepeatText = new PasswordField();
-                            chPass.addComponent(chRepeatText, "repeat");
-
-                            final Button changePassButton = new Button("Сменить", new Button.ClickListener() {
-                                @Override
-                                public void buttonClick(Button.ClickEvent clickEvent) {
-                                    if (chPassText.getValue().equals(""))
-                                        Notification.show("Введите пароль");
-                                    else if (chRepeatText.getValue().equals(""))
-                                        Notification.show("Повторите пароль");
-                                    else if (!chPassText.getValue().equals(chRepeatText.getValue()))
-                                        Notification.show("Пароли не совпадают");
-                                    else {
-                                        if (dao.ChangePassword(hidden.pullUp("selected_user"), chPassText.getValue()))
-                                            winChangePass.close();
-                                        else
-                                            Notification.show("Ошибка смены пароля");
-                                    }
-                                }
-                            });
-                            chPass.addComponent(changePassButton, "addbutton");
-
-                            final Button closeChangePass = new Button("Отмена", new Button.ClickListener() {
-                                @Override
-                                public void buttonClick(Button.ClickEvent clickEvent) {
-                                    winChangePass.close();
-                                }
-                            });
-                            chPass.addComponent(closeChangePass, "close");
-
-                            fLayout.addComponent(chPass);
-                            winChangePass.setContent(fLayout);
-                            UI.getCurrent().addWindow(winChangePass);
-                        }
-                    });
+                    final Button changePass = new Button("Сменить пароль", new ChangePassword());
                     changePass.setEnabled(false);
 
-                    final Button changeGroup = new Button("Сменить группу", new Button.ClickListener() {
-                        @Override
-                        public void buttonClick(Button.ClickEvent clickEvent) {
-                            final Window winChGroup = new Window("Изменение группы для " + hidden.pullUp("selected_user"));
-                            winChGroup.setWidth(400.0f, Unit.PIXELS);
-                            winChGroup.setHeight(200.0f, Unit.PIXELS);
-                            winChGroup.setModal(true);
-
-                            FormLayout chLayout = new FormLayout();
-                            winChGroup.setContent(chLayout);
-                            UI.getCurrent().addWindow(winChGroup);
-                        }
-                    });
+                    final Button changeGroup = new Button("Сменить группу", new ChangeGroup());
                     changeGroup.setEnabled(false);
 
-                    final Button delete = new Button("Удалить", new Button.ClickListener() {
-                        @Override
-                        public void buttonClick(Button.ClickEvent clickEvent) {
-                            final Window winDelUser = new Window("Удаление пользователя " + hidden.pullUp("selected_user"));
-                            winDelUser.setWidth(400.0f, Unit.PIXELS);
-                            winDelUser.setHeight(200.0f, Unit.PIXELS);
-                            winDelUser.setModal(true);
-
-                            FormLayout delLayout = new FormLayout();
-                            CustomLayout delCustom = new CustomLayout("delete");
-
-                            final Button delConfirm = new Button("Удалить", new Button.ClickListener() {
-                                @Override
-                                public void buttonClick(Button.ClickEvent clickEvent) {
-                                    if (dao.DelUser(hidden.pullUp("selected_user")))
-                                        winDelUser.close();
-                                    else
-                                        Notification.show("Ошибка удаления пользователя");
-                                }
-                            });
-                            delCustom.addComponent(delConfirm, "delete");
-
-                            final Button delClose = new Button("Отмена", new Button.ClickListener() {
-                                @Override
-                                public void buttonClick(Button.ClickEvent clickEvent) {
-                                    winDelUser.close();
-                                }
-                            });
-                            delCustom.addComponent(delClose, "close");
-
-                            delLayout.addComponent(delCustom);
-                            winDelUser.setContent(delLayout);
-                            UI.getCurrent().addWindow(winDelUser);
-                        }
-                    });
+                    final Button delete = new Button("Удалить", new DeleteUserConfirm());
                     delete.setEnabled(false);
 
                     tabUsers.addValueChangeListener(new Property.ValueChangeListener() {
