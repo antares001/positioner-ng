@@ -15,10 +15,7 @@ import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.bean.*;
-import pmr.mvd.positioner.controller.ButtonEvents.AddUser;
-import pmr.mvd.positioner.controller.ButtonEvents.ChangeGroup;
-import pmr.mvd.positioner.controller.ButtonEvents.ChangePassword;
-import pmr.mvd.positioner.controller.ButtonEvents.DeleteUserConfirm;
+import pmr.mvd.positioner.controller.ButtonEvents.*;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
@@ -42,10 +39,6 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     private GoogleMapPolyline polyline;
 
     Label text = new Label();
-
-    private List<Component> layers = new LinkedList<Component>();
-
-    private String databaseResult;
 
     public MainView(){
         final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
@@ -119,52 +112,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
                     final CustomLayout custom = new CustomLayout("buttons");
 
-                    Button addNewDevice = new Button("Добавить", new Button.ClickListener() {
-                        @Override
-                        public void buttonClick(Button.ClickEvent clickEvent) {
-                            final Window addTs = new Window("Добавить");
-                            final FormLayout formLayout = new FormLayout();
-                            addTs.setWidth(400.0f, Unit.PIXELS);
-                            addTs.setHeight(200.0f, Unit.PIXELS);
-                            addTs.setModal(true);
-
-                            final CustomLayout layout = new CustomLayout("newuser");
-
-                            final TextField username = new TextField();
-                            layout.addComponent(username, "nameInput");
-
-                            final TextField idname = new TextField();
-                            layout.addComponent(idname, "idInput");
-
-                            final Button add = new Button("Добавить", new Button.ClickListener() {
-                                @Override
-                                public void buttonClick(Button.ClickEvent clickEvent) {
-                                    if (username.getValue().equals("")){
-                                        Notification.show("Не введено имя транспортного средства");
-                                    } else if (idname.getValue().equals("")){
-                                        Notification.show("Не введен уникальный идентификатор");
-                                    } else {
-                                        dao.AddNewDevice(username.getValue(), idname.getValue());
-                                        addTs.close();
-                                    }
-                                }
-                            });
-                            layout.addComponent(add, "addbutton");
-
-                            Button close = new Button("Закрыть", new Button.ClickListener() {
-                                @Override
-                                public void buttonClick(Button.ClickEvent clickEvent) {
-                                    addTs.close();
-                                }
-                            });
-                            layout.addComponent(close, "close");
-
-                            formLayout.addComponent(layout);
-
-                            addTs.setContent(formLayout);
-                            UI.getCurrent().addWindow(addTs);
-                        }
-                    });
+                    Button addNewDevice = new Button("Добавить", new AddDevice());
 
                     final Button deleteDevice = new Button("Удалить", new Button.ClickListener() {
                         @Override
@@ -172,8 +120,10 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                             ArrayList<Devices> devices = dao.GetDevices();
                             try {
                                 Devices d = devices.get(Integer.parseInt(delDev) - 1);
-                                dao.DelDevice(d.getName());
-                                Notification.show("Удалено транс. средство: " + d.getName() + "");
+                                if (dao.DelDevice(d.getName()))
+                                    Notification.show("Удалено транс. средство: " + d.getName() + "");
+                                else
+                                    Notification.show("Ошибка удаления ТС");
                             } catch (Exception e){
                                 Notification.show("ТС уже удалено");
                             }

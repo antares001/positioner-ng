@@ -154,7 +154,8 @@ public class SqlDao {
         return result;
     }
 
-    public void AddNewDevice(String name, String id){
+    public boolean AddNewDevice(String name, String id){
+        boolean result;
         String query = "insert into devices(name,uniqueId) values('" + name + "','" + id +"')";
         try {
             Connection connection = sqlConnector.getConnect();
@@ -162,12 +163,16 @@ public class SqlDao {
             statement.execute(query);
             statement.close();
             connection.close();
+            result = true;
         } catch (SQLException e) {
             e.printStackTrace();
+            result = false;
         }
+        return result;
     }
 
-    public void DelDevice(String name){
+    public boolean DelDevice(String name){
+        boolean result;
         String query = "delete from devices where name='" + name + "'";
         try {
             Connection connection = sqlConnector.getConnect();
@@ -175,9 +180,12 @@ public class SqlDao {
             statement.execute(query);
             statement.close();
             connection.close();
+            result = true;
         } catch (SQLException e) {
             e.printStackTrace();
+            result = false;
         }
+        return result;
     }
 
     public ArrayList<LatLon> GetPathDevice(String dev) {
