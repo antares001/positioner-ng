@@ -29,6 +29,11 @@ public class AddUser implements Button.ClickListener{
         final PasswordField repeatPass = new PasswordField();
         customLayout.addComponent(repeatPass, "repeat");
 
+        final ComboBox comboBox = new ComboBox();
+        comboBox.addItem("Пользователь");
+        comboBox.addItem("Администратор");
+        customLayout.addComponent(comboBox, "group");
+
         final Button addNewUser = new Button("Добавить", new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
@@ -49,7 +54,7 @@ public class AddUser implements Button.ClickListener{
                     }
 
                     if (existsUser) {
-                        if (dao.AddNewUser(userName.getValue(), passWord.getValue())) {
+                        if (dao.AddNewUser(userName.getValue(), passWord.getValue(), comboBox.getId())) {
                             addUser.close();
                         } else {
                             Notification.show("Ошибка добавления пользователя");

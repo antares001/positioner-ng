@@ -238,9 +238,10 @@ public class SqlDao {
         return result;
     }
 
-    public boolean AddNewUser(String value, String value1) {
+    public boolean AddNewUser(String value, String value1, String role) {
         boolean result;
-        String query = "insert into users(admin,login,password,userSettings_id) values(0,'" + value + "','" + value1 +"', 1)";
+        String query = "insert into users(admin,login,password,userSettings_id) values(" + role +
+                ",'" + value + "','" + value1 +"', 1)";
         try {
             Connection connection = sqlConnector.getConnect();
             Statement statement = connection.createStatement();
