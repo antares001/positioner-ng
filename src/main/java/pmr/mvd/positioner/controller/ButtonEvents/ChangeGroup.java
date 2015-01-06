@@ -2,13 +2,13 @@ package pmr.mvd.positioner.controller.ButtonEvents;
 
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinSession;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.*;
+import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
 public class ChangeGroup implements Button.ClickListener{
+    private SqlDao dao = new SqlDao();
+
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
         final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
@@ -19,6 +19,33 @@ public class ChangeGroup implements Button.ClickListener{
         winChGroup.setModal(true);
 
         FormLayout chLayout = new FormLayout();
+        CustomLayout layout = new CustomLayout("changegroup");
+
+        final ComboBox comboBox = new ComboBox();
+        comboBox.addItem("Пользователь");
+        comboBox.addItem("Администратор");
+        layout.addComponent(comboBox, "group");
+
+        final Button save = new Button("Сменить", new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                if (dao.ChangeGroup(hidden.pullUp("selected_user"), comboBox.getId()))
+                    winChGroup.close();
+                else
+                    Notification.show("Ошибка смены группы");
+            }
+        });
+        layout.addComponent(save, "save");
+
+        final Button close = new Button("Отмена", new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                winChGroup.close();
+            }
+        });
+        layout.addComponent(close, "close");
+
+        chLayout.addComponent(layout);
         winChGroup.setContent(chLayout);
         UI.getCurrent().addWindow(winChGroup);
     }

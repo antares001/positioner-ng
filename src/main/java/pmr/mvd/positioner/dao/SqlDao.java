@@ -289,4 +289,21 @@ public class SqlDao {
         }
         return result;
     }
+
+    public boolean ChangeGroup(String user, String group) {
+        boolean result;
+        String query = "update users set admin='" + group + "' where login='" + user + "'";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            statement.close();
+            connection.close();
+            result = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            result = false;
+        }
+        return result;
+    }
 }
