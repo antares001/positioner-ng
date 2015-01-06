@@ -33,6 +33,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     private String oneLastDate = sdf.format(new Date());
     private String dev = "";
     private String delDev = "0";
+    private String selectedUser = "";
     
     private Table statusCar = new Table("Статус утройства");
     private GoogleMap googleMap = new GoogleMap(null,null,null);
@@ -45,7 +46,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     private String databaseResult;
 
     public MainView(){
-        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
+        final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         String isAdmin = "0";
         String username = "";
         try{
@@ -313,8 +314,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                     final Button changePass = new Button("Сменить пароль", new Button.ClickListener() {
                         @Override
                         public void buttonClick(Button.ClickEvent clickEvent) {
-                            final String chUser = "";
-                            final Window winChangePass = new Window("Смена пароля пользователя ");
+                            final Window winChangePass = new Window("Смена пароля пользователя " + hidden.pullUp("selected_user"));
                             winChangePass.setWidth(500.0f, Unit.PIXELS);
                             winChangePass.setHeight(200.0f, Unit.PIXELS);
                             winChangePass.setModal(true);
@@ -338,7 +338,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                                     else if (!chPassText.getValue().equals(chRepeatText.getValue()))
                                         Notification.show("Пароли не совпадают");
                                     else {
-                                        if (dao.ChangePassword(chUser, chPassText.getValue()))
+                                        if (dao.ChangePassword(hidden.pullUp("selected_user"), chPassText.getValue()))
                                             winChangePass.close();
                                         else
                                             Notification.show("Ошибка смены пароля");
@@ -365,7 +365,14 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                     final Button changeGroup = new Button("Сменить группу", new Button.ClickListener() {
                         @Override
                         public void buttonClick(Button.ClickEvent clickEvent) {
-                            Notification.show("Смена группы");
+                            final Window winChGroup = new Window("Изменение группы для " + hidden.pullUp("selected_user"));
+                            winChGroup.setWidth(400.0f, Unit.PIXELS);
+                            winChGroup.setHeight(200.0f, Unit.PIXELS);
+                            winChGroup.setModal(true);
+
+                            FormLayout chLayout = new FormLayout();
+                            winChGroup.setContent(chLayout);
+                            UI.getCurrent().addWindow(winChGroup);
                         }
                     });
                     changeGroup.setEnabled(false);
@@ -373,7 +380,36 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                     final Button delete = new Button("Удалить", new Button.ClickListener() {
                         @Override
                         public void buttonClick(Button.ClickEvent clickEvent) {
-                            Notification.show("Удаление пользователя");
+                            final Window winDelUser = new Window("Удаление пользователя " + hidden.pullUp("selected_user"));
+                            winDelUser.setWidth(400.0f, Unit.PIXELS);
+                            winDelUser.setHeight(200.0f, Unit.PIXELS);
+                            winDelUser.setModal(true);
+
+                            FormLayout delLayout = new FormLayout();
+                            CustomLayout delCustom = new CustomLayout("delete");
+
+                            final Button delConfirm = new Button("Удалить", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    if (dao.DelUser(hidden.pullUp("selected_user")))
+                                        winDelUser.close();
+                                    else
+                                        Notification.show("Ошибка удаления пользователя");
+                                }
+                            });
+                            delCustom.addComponent(delConfirm, "delete");
+
+                            final Button delClose = new Button("Отмена", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    winDelUser.close();
+                                }
+                            });
+                            delCustom.addComponent(delClose, "close");
+
+                            delLayout.addComponent(delCustom);
+                            winDelUser.setContent(delLayout);
+                            UI.getCurrent().addWindow(winDelUser);
                         }
                     });
                     delete.setEnabled(false);
@@ -384,7 +420,13 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                             changePass.setEnabled(true);
                             changeGroup.setEnabled(true);
                             delete.setEnabled(true);
-                            Notification.show(String.valueOf(valueChangeEvent.getProperty().getValue()));
+                            String numUser = String.valueOf(valueChangeEvent.getProperty().getValue());
+                            int k = 1;
+                            for (UserSettings user : users){
+                                if (numUser.equals(String.valueOf(k)))
+                                    setSelectedUsers(user.getUsername());
+                                k++;
+                            }
                         }
                     });
 
@@ -571,6 +613,12 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         main.addComponent(statusCar);
 
         setCompositionRoot(main);
+    }
+
+    private void setSelectedUsers(String arg){
+        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
+        hidden.pullDel("selected_user");
+        hidden.pullDown("selected_user", arg);
     }
     
     private class SetDataDevices implements MenuBar.Command{

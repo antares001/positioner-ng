@@ -263,4 +263,21 @@ public class SqlDao {
         }
         return result;
     }
+
+    public boolean DelUser(String user) {
+        boolean result;
+        String query = "delete from users login='" + user + "'";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            statement.close();
+            connection.close();
+            result = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            result = false;
+        }
+        return result;
+    }
 }

@@ -15,7 +15,7 @@ public class Positions {
     private String other;
     private String power;
     private String speed;
-    private Date time;
+    private String time;
     private String valid;
     private String deviceId;
 
@@ -95,7 +95,7 @@ public class Positions {
         return sdf.format(this.time);
     }
 
-    public void setTime(Date arg){
+    public void setTime(String arg){
         this.time = arg;
     }
 
