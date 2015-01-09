@@ -28,17 +28,10 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
     private SqlDao dao = new SqlDao();
     private static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-    private String oneTS = "";
-    private String oneFirstDate = sdf.format(new Date());
-    private String oneLastDate = sdf.format(new Date());
-    private String dev = "";
-    private String delDev = "0";
     
     private Table statusCar = new Table("Статус утройства");
     private GoogleMap googleMap = new GoogleMap(null,null,null);
     private GoogleMapPolyline polyline;
-
-    Label text = new Label();
 
     public MainView(){
         final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
@@ -119,7 +112,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                         public void buttonClick(Button.ClickEvent clickEvent) {
                             ArrayList<Devices> devices = dao.GetDevices();
                             try {
-                                Devices d = devices.get(Integer.parseInt(delDev) - 1);
+                                Devices d = devices.get(Integer.parseInt(hidden.pullUp("delete_device")) - 1);
                                 if (dao.DelDevice(d.getName()))
                                     Notification.show("Удалено транс. средство: " + d.getName() + "");
                                 else
@@ -135,7 +128,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                         @Override
                         public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
                             deleteDevice.setEnabled(true);
-                            delDev = String.valueOf(valueChangeEvent.getProperty().getValue());
+                            hidden.pullDown("delete_device", String.valueOf(valueChangeEvent.getProperty().getValue()));
                         }
                     });
 
@@ -389,19 +382,22 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                 String message = "1";
 
                 try {message = String.valueOf(event.getProperty().getValue());} catch (NumberFormatException ignored){}
-                ArrayList<Positions> positionses = dao.GetPositions(dev);
+                ArrayList<Positions> positionses = dao.GetPositions(hidden.pullUp("device"));
 
                 try {
                     Positions pos = positionses.get(Integer.parseInt(message) - 1);
                     googleMap.setCenter(new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())));
 
                     Collection points = googleMap.getMarkers();
-                    for (Object marker : points) {
-                        googleMap.removeMarker((GoogleMapMarker) marker);
-                    }
-                    googleMap.addMarker(dev, new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())), false, null);
+                    try{
+                        for (Object marker : points) {
+                            googleMap.removeMarker((GoogleMapMarker) marker);
+                        }
+                    } catch (Exception e){}
 
-                    Notification.show("Транспортное средство: " + dev + ", широта: " + pos.getLatitude() + ", долгота: " + pos.getLongitude());
+                    googleMap.addMarker(hidden.pullUp("device"), new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())), false, null);
+
+                    Notification.show("Транспортное средство: " + hidden.pullUp("device") + ", широта: " + pos.getLatitude() + ", долгота: " + pos.getLongitude());
                 } catch (NumberFormatException ignored){}
             }
         });
@@ -417,6 +413,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     }
     
     private class SetDataDevices implements MenuBar.Command{
+        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         @Override
         public void menuSelected(MenuBar.MenuItem selectedItem) {
             Collection items = statusCar.getItemIds();
@@ -424,15 +421,18 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                 statusCar.removeAllItems();
             }
             ArrayList<Positions> positionses = dao.GetPositions(selectedItem.getText());
-            dev = selectedItem.getText();
+            hidden.pullDown("device", selectedItem.getText());
             if (positionses.size() != 0) {
                 Positions first = positionses.get(0);
                 googleMap.setCenter(new LatLon(Double.parseDouble(first.getLatitude()), Double.parseDouble(first.getLongitude())));
                 Collection points = googleMap.getMarkers();
 
-                for (Object marker : points) {
-                    googleMap.removeMarker((GoogleMapMarker) marker);
-                }
+                try{
+                    for (Object marker : points) {
+                        googleMap.removeMarker((GoogleMapMarker) marker);
+                    }
+                } catch (Exception e){}
+
                 googleMap.addMarker(selectedItem.getText(), new LatLon(Double.parseDouble(first.getLatitude()), Double.parseDouble(first.getLongitude())), false, null);
                 int k = 1;
                 for (Positions position : positionses) {
@@ -450,10 +450,10 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     }
 
     private class SetPathDevice implements MenuBar.Command{
-
+        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         @Override
         public void menuSelected(MenuBar.MenuItem menuItem) {
-            ArrayList<LatLon> pathPoints = dao.GetPathDevice(dev);
+            ArrayList<LatLon> pathPoints = dao.GetPathDevice(hidden.pullUp("device"));
             try{googleMap.removePolyline(polyline);} catch (NullPointerException e){}
             polyline = new GoogleMapPolyline(pathPoints, "#ff0000", 0.5, 5);
             googleMap.addPolyline(polyline);
@@ -461,39 +461,42 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     }
 
     private class OneFirstDate implements Property.ValueChangeListener{
+        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         @Override
         public void valueChange(Property.ValueChangeEvent event) {
-            oneFirstDate = sdf.format(event.getProperty().getValue());
+            hidden.pullDown("first_date", sdf.format(event.getProperty().getValue()));
         }
     }
 
     private class OneLastDate implements Property.ValueChangeListener{
+        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         @Override
         public void valueChange(Property.ValueChangeEvent event) {
-            oneLastDate = sdf.format(event.getProperty().getValue());
+            hidden.pullDown("last_date", sdf.format(event.getProperty().getValue()));
         }
     }
 
     private class OneTsName implements Property.ValueChangeListener{
+        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         @Override
         public void valueChange(Property.ValueChangeEvent event) {
-            oneTS = (String) event.getProperty().getValue();
+            hidden.pullDown("combo_device", (String) event.getProperty().getValue());
         }
     }
 
     private class PrintOneReport implements Button.ClickListener{
+        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         @Override
         public void buttonClick(Button.ClickEvent event) {
-            System.out.println("select * from positions where name='" + oneTS + "' and time > '" + oneFirstDate + "' and time < '" + oneLastDate + "'");
-            ArrayList<Report> report = dao.GetReport(oneTS, oneFirstDate, oneLastDate);
+            System.out.println("select * from positions where name='" + hidden.pullUp("combo_device") + "' and time > '" +
+                    hidden.pullUp("first_date") + "' and time < '" + hidden.pullUp("last_date") + "'");
+            ArrayList<Report> report = dao.GetReport(hidden.pullUp("combo_device"), hidden.pullUp("first_date"), hidden.pullUp("last_date"));
         }
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         //TODO: Основная форма
-        String username = "admin";
-        text.setValue("Hello " + username);
     }
 
     @Override

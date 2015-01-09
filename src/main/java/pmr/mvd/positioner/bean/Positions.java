@@ -92,7 +92,7 @@ public class Positions {
     }
 
     public String getTime(){
-        return sdf.format(this.time);
+        return this.time;
     }
 
     public void setTime(String arg){
