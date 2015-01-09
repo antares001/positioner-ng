@@ -2,6 +2,7 @@ package pmr.mvd.positioner.controller.ButtonEvents;
 
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
@@ -22,6 +23,10 @@ public class ChangeGroup implements Button.ClickListener{
         CustomLayout layout = new CustomLayout("changegroup");
 
         final ComboBox comboBox = new ComboBox();
+        comboBox.setFilteringMode(FilteringMode.CONTAINS);
+        comboBox.setNullSelectionAllowed(false);
+        comboBox.setImmediate(true);
+
         comboBox.addItem("Пользователь");
         comboBox.addItem("Администратор");
         layout.addComponent(comboBox, "group");

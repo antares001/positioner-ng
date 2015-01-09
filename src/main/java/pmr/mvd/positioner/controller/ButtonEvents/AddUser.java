@@ -30,6 +30,9 @@ public class AddUser implements Button.ClickListener{
         customLayout.addComponent(repeatPass, "repeat");
 
         final ComboBox comboBox = new ComboBox();
+        comboBox.setImmediate(true);
+        comboBox.setNullSelectionAllowed(false);
+
         comboBox.addItem("Пользователь");
         comboBox.addItem("Администратор");
         customLayout.addComponent(comboBox, "group");
