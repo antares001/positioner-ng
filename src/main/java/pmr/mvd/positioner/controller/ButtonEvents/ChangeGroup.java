@@ -34,10 +34,22 @@ public class ChangeGroup implements Button.ClickListener{
         final Button save = new Button("Сменить", new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                if (dao.ChangeGroup(hidden.pullUp("selected_user"), comboBox.getId()))
-                    winChGroup.close();
-                else
-                    Notification.show("Ошибка смены группы");
+                try {
+                    final String value = comboBox.getValue().toString();
+
+                    String group = "";
+                    if (value.equals("Администратор"))
+                        group = "1";
+                    else if (value.equals("Пользователь"))
+                        group = "0";
+
+                    if (dao.ChangeGroup(hidden.pullUp("selected_user"), group))
+                        winChGroup.close();
+                    else
+                        Notification.show("Ошибка смены группы");
+                } catch (NullPointerException e) {
+                    Notification.show("Не выбрана группа");
+                }
             }
         });
         layout.addComponent(save, "save");

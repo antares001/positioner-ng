@@ -244,13 +244,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
             MenuBar.Command control = new MenuBar.Command() {
                 @Override
                 public void menuSelected(MenuBar.MenuItem selectedItem) {
-                    final Window windowControl = new Window("Управление");
-                    windowControl.setWidth(800.0f, Unit.PIXELS);
-                    windowControl.setHeight(600.0f, Unit.PIXELS);
-                    windowControl.setModal(true);
-                    final FormLayout formLayout = new FormLayout();
-                    windowControl.setContent(formLayout);
-                    UI.getCurrent().addWindow(windowControl);
+                    getUI().getNavigator().navigateTo(Settings.NAME);
                 }
             };
             admins.addItem("Управление системой", control);

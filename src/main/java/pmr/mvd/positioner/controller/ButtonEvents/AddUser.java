@@ -57,7 +57,15 @@ public class AddUser implements Button.ClickListener{
                     }
 
                     if (existsUser) {
-                        if (dao.AddNewUser(userName.getValue(), passWord.getValue(), comboBox.getId())) {
+                        final String value = comboBox.getValue().toString();
+
+                        String group = "";
+                        if (value.equals("Администратор"))
+                            group = "1";
+                        else if (value.equals("Пользователь"))
+                            group = "0";
+
+                        if (dao.AddNewUser(userName.getValue(), passWord.getValue(), group)) {
                             addUser.close();
                         } else {
                             Notification.show("Ошибка добавления пользователя");

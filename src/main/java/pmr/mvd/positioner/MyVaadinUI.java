@@ -12,6 +12,7 @@ import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.controller.Login;
 import pmr.mvd.positioner.controller.MainView;
+import pmr.mvd.positioner.controller.Settings;
 
 @Theme("mytheme")
 @SuppressWarnings("serial")
@@ -29,6 +30,7 @@ public class MyVaadinUI extends UI
 
         getNavigator().addView(Login.NAME, Login.class);
         getNavigator().addView(MainView.NAME, MainView.class);
+        getNavigator().addView(Settings.NAME, Settings.class);
 
         getNavigator().addViewChangeListener(new ViewChangeListener() {
             @Override

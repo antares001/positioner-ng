@@ -8,13 +8,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class SqlDao {
     private MySQLConnector sqlConnector = new MySQLConnector();
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public SqlDao(){
         sqlConnector.setHostname("jdbc:mysql://tirgps.ddns.net:3306/traccar");
@@ -190,7 +187,6 @@ public class SqlDao {
 
     public ArrayList<LatLon> GetPathDevice(String dev) {
         ArrayList<LatLon> result = new ArrayList<LatLon>();
-        String now = sdf.format(new Date());
         String query = " select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" + dev + "' order by positions.id desc limit 300";
         try {
             Connection connection = sqlConnector.getConnect();
@@ -275,7 +271,8 @@ public class SqlDao {
 
     public boolean DelUser(String user) {
         boolean result;
-        String query = "delete from users login='" + user + "'";
+        String query = "delete from users where login = '" + user + "'";
+        System.out.println(query);
         try {
             Connection connection = sqlConnector.getConnect();
             Statement statement = connection.createStatement();
@@ -292,7 +289,7 @@ public class SqlDao {
 
     public boolean ChangeGroup(String user, String group) {
         boolean result;
-        String query = "update users set admin='" + group + "' where login='" + user + "'";
+        String query = "update users set admin=" + group + " where login='" + user + "'";
         try {
             Connection connection = sqlConnector.getConnect();
             Statement statement = connection.createStatement();
