@@ -3,6 +3,7 @@ package pmr.mvd.positioner.controller;
 import com.vaadin.annotations.Push;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
+import com.vaadin.data.util.filter.Not;
 import com.vaadin.event.Action;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -105,7 +106,61 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
                     final CustomLayout custom = new CustomLayout("buttons");
 
-                    Button addNewDevice = new Button("Добавить", new AddDevice());
+                    final Button addNewDevice = new Button("Добавить", new AddDevice());
+
+                    final Button devGroupButton = new Button("Группы ТС", new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent clickEvent) {
+                            final Window winChangeDev = new Window("Группа ТС");
+                            winChangeDev.setWidth(600.0f, Unit.PIXELS);
+                            winChangeDev.setHeight(400.0f, Unit.PIXELS);
+                            winChangeDev.setModal(true);
+
+                            FormLayout chDevLayaout = new FormLayout();
+
+                            VerticalLayout vDev = new VerticalLayout();
+
+                            Table tabDevGroup = new Table("Группы привязки транспортных средств");
+
+                            tabDevGroup.setPageLength(5);
+                            tabDevGroup.setWidth(550.0f, Unit.PIXELS);
+
+                            vDev.addComponent(tabDevGroup);
+
+                            CustomLayout customDevGroup = new CustomLayout("usergroup");
+
+                            final Button add = new Button("Добавить", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    Notification.show("Добавление");
+                                }
+                            });
+                            customDevGroup.addComponent(add, "add");
+
+                            final Button del = new Button("Удалить", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    Notification.show("Удаление");
+                                }
+                            });
+                            del.setEnabled(false);
+                            customDevGroup.addComponent(del, "delete");
+
+                            final Button close = new Button("Закрыть", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    winChangeDev.close();
+                                }
+                            });
+                            customDevGroup.addComponent(close, "exit");
+                            vDev.addComponent(customDevGroup);
+
+                            chDevLayaout.addComponent(vDev);
+                            winChangeDev.setContent(chDevLayaout);
+                            UI.getCurrent().addWindow(winChangeDev);
+                        }
+                    });
+                    devGroupButton.setEnabled(false);
 
                     final Button deleteDevice = new Button("Удалить", new Button.ClickListener() {
                         @Override
@@ -128,6 +183,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                         @Override
                         public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
                             deleteDevice.setEnabled(true);
+                            devGroupButton.setEnabled(true);
                             hidden.pullDown("delete_device", String.valueOf(valueChangeEvent.getProperty().getValue()));
                         }
                     });
@@ -140,6 +196,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                     });
 
                     custom.addComponent(addNewDevice, "addButton");
+                    custom.addComponent(devGroupButton, "groupDev");
                     custom.addComponent(deleteDevice, "deleteButton");
                     custom.addComponent(exit, "close");
 
@@ -157,7 +214,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                 @Override
                 public void menuSelected(MenuBar.MenuItem selectedItem) {
                     final Window windowAddUser = new Window("Управление пользователями");
-                    windowAddUser.setWidth(800.0f, Unit.PIXELS);
+                    windowAddUser.setWidth(850.0f, Unit.PIXELS);
                     windowAddUser.setHeight(400.0f, Unit.PIXELS);
                     windowAddUser.setModal(true);
                     final FormLayout formLayout = new FormLayout();
@@ -185,7 +242,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                     }
 
                     tabUsers.setPageLength(5);
-                    tabUsers.setSizeFull();
+                    tabUsers.setWidth(800.0f, Unit.PIXELS);
 
                     vertical.addComponent(tabUsers);
 
@@ -199,6 +256,60 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                     final Button changeGroup = new Button("Сменить группу", new ChangeGroup());
                     changeGroup.setEnabled(false);
 
+                    final Button changeDev = new Button("Группа ТС", new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent clickEvent) {
+                            final Window winChangeDev = new Window("Группа ТС");
+                            winChangeDev.setWidth(600.0f, Unit.PIXELS);
+                            winChangeDev.setHeight(400.0f, Unit.PIXELS);
+                            winChangeDev.setModal(true);
+
+                            FormLayout chDevLayaout = new FormLayout();
+
+                            VerticalLayout vDev = new VerticalLayout();
+
+                            Table tabDevGroup = new Table("Группы привязки транспортных средств");
+
+                            tabDevGroup.setPageLength(5);
+                            tabDevGroup.setWidth(550.0f, Unit.PIXELS);
+
+                            vDev.addComponent(tabDevGroup);
+
+                            CustomLayout customDevGroup = new CustomLayout("usergroup");
+
+                            final Button add = new Button("Добавить", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    Notification.show("Добавление");
+                                }
+                            });
+                            customDevGroup.addComponent(add, "add");
+
+                            final Button del = new Button("Удалить", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    Notification.show("Удаление");
+                                }
+                            });
+                            del.setEnabled(false);
+                            customDevGroup.addComponent(del, "delete");
+
+                            final Button close = new Button("Закрыть", new Button.ClickListener() {
+                                @Override
+                                public void buttonClick(Button.ClickEvent clickEvent) {
+                                    winChangeDev.close();
+                                }
+                            });
+                            customDevGroup.addComponent(close, "exit");
+                            vDev.addComponent(customDevGroup);
+
+                            chDevLayaout.addComponent(vDev);
+                            winChangeDev.setContent(chDevLayaout);
+                            UI.getCurrent().addWindow(winChangeDev);
+                        }
+                    });
+                    changeDev.setEnabled(false);
+
                     final Button delete = new Button("Удалить", new DeleteUserConfirm());
                     delete.setEnabled(false);
 
@@ -207,6 +318,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                         public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
                             changePass.setEnabled(true);
                             changeGroup.setEnabled(true);
+                            changeDev.setEnabled(true);
                             delete.setEnabled(true);
                             String numUser = String.valueOf(valueChangeEvent.getProperty().getValue());
                             int k = 1;
@@ -228,6 +340,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                     custom.addComponent(addNewUser, "addButton");
                     custom.addComponent(changePass, "changePass");
                     custom.addComponent(changeGroup, "changeGroup");
+                    custom.addComponent(changeDev, "groupDev");
                     custom.addComponent(delete, "deleteButton");
                     custom.addComponent(exit, "close");
 
