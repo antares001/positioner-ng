@@ -108,10 +108,10 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
                     final Button addNewDevice = new Button("Добавить", new AddDevice());
 
-                    final Button devGroupButton = new Button("Группы ТС", new Button.ClickListener() {
+                    final Button devGroupButton = new Button("Пользователи", new Button.ClickListener() {
                         @Override
                         public void buttonClick(Button.ClickEvent clickEvent) {
-                            final Window winChangeDev = new Window("Группа ТС");
+                            final Window winChangeDev = new Window("Список пользователей для данного ТС");
                             winChangeDev.setWidth(600.0f, Unit.PIXELS);
                             winChangeDev.setHeight(400.0f, Unit.PIXELS);
                             winChangeDev.setModal(true);
@@ -120,10 +120,28 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
                             VerticalLayout vDev = new VerticalLayout();
 
-                            Table tabDevGroup = new Table("Группы привязки транспортных средств");
+                            Table tabDevGroup = new Table("Список пользователей");
+                            tabDevGroup.setSelectable(true);
 
                             tabDevGroup.setPageLength(5);
                             tabDevGroup.setWidth(550.0f, Unit.PIXELS);
+
+                            tabDevGroup.addContainerProperty("Пользователь", String.class, null);
+
+                            ArrayList<Devices> devices = dao.GetDevices();
+                            Devices d = devices.get(Integer.parseInt(hidden.pullUp("delete_device")) - 1);
+                            final String namedevice = d.getName();
+
+                            ArrayList<GroupDev> userGroup = dao.GetGroupDev(namedevice);
+                            for (GroupDev groupDev : userGroup){
+                                try{
+                                    String name = groupDev.getUser();
+
+                                    Object newItem = tabDevGroup.addItem();
+                                    Item row = tabDevGroup.getItem(newItem);
+                                    row.getItemProperty("Пользователь").setValue(name);
+                                }catch (NullPointerException ignored){}
+                            }
 
                             vDev.addComponent(tabDevGroup);
 
@@ -132,7 +150,53 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                             final Button add = new Button("Добавить", new Button.ClickListener() {
                                 @Override
                                 public void buttonClick(Button.ClickEvent clickEvent) {
-                                    Notification.show("Добавление");
+                                    final Window winAddGroupUser = new Window("Новый пользователь");
+                                    winAddGroupUser.setModal(true);
+                                    winAddGroupUser.setWidth(400.0f, Unit.PIXELS);
+                                    winAddGroupUser.setHeight(200.0f, Unit.PIXELS);
+
+                                    FormLayout addGroupUserLayout = new FormLayout();
+                                    CustomLayout layout0 = new CustomLayout("changegroup");
+
+                                    final ComboBox comboBoxUsers = new ComboBox();
+                                    comboBoxUsers.setWidth(200.0f, Unit.PIXELS);
+                                    comboBoxUsers.setImmediate(true);
+                                    comboBoxUsers.setNullSelectionAllowed(false);
+
+                                    ArrayList<UserSettings> listUsers = dao.GetUsers();
+                                    for (UserSettings us : listUsers){
+                                        comboBoxUsers.addItem(us.getUsername());
+                                    }
+                                    layout0.addComponent(comboBoxUsers, "group");
+
+                                    final Button saveGroupUser = new Button("Добавить", new Button.ClickListener() {
+                                        @Override
+                                        public void buttonClick(Button.ClickEvent clickEvent) {
+                                            try{
+                                                String nameuser = comboBoxUsers.getValue().toString();
+                                                if (dao.AddGroupUser(nameuser, namedevice))
+                                                    winAddGroupUser.close();
+                                                else
+                                                    Notification.show("Ошибка добавления пользователя");
+                                            } catch (NullPointerException e){
+                                                Notification.show("Не выбран пользователь");
+                                            }
+                                        }
+                                    });
+                                    layout0.addComponent(saveGroupUser, "save");
+
+                                    final Button closeGroupUser = new Button("Отмена", new Button.ClickListener() {
+                                        @Override
+                                        public void buttonClick(Button.ClickEvent clickEvent) {
+                                            winAddGroupUser.close();
+                                        }
+                                    });
+                                    layout0.addComponent(closeGroupUser, "close");
+
+                                    addGroupUserLayout.addComponent(layout0);
+
+                                    winAddGroupUser.setContent(addGroupUserLayout);
+                                    UI.getCurrent().addWindow(winAddGroupUser);
                                 }
                             });
                             customDevGroup.addComponent(add, "add");
@@ -145,6 +209,14 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                             });
                             del.setEnabled(false);
                             customDevGroup.addComponent(del, "delete");
+
+                            tabDevGroup.addValueChangeListener(new Property.ValueChangeListener() {
+                                @Override
+                                public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                                    del.setEnabled(true);
+                                    hidden.pullDown("delete_groupuser", String.valueOf(valueChangeEvent.getProperty().getValue()));
+                                }
+                            });
 
                             final Button close = new Button("Закрыть", new Button.ClickListener() {
                                 @Override
@@ -256,10 +328,10 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                     final Button changeGroup = new Button("Сменить группу", new ChangeGroup());
                     changeGroup.setEnabled(false);
 
-                    final Button changeDev = new Button("Группа ТС", new Button.ClickListener() {
+                    final Button changeDev = new Button("ТС", new Button.ClickListener() {
                         @Override
                         public void buttonClick(Button.ClickEvent clickEvent) {
-                            final Window winChangeDev = new Window("Группа ТС");
+                            final Window winChangeDev = new Window("Список транспортных средств пользователя");
                             winChangeDev.setWidth(600.0f, Unit.PIXELS);
                             winChangeDev.setHeight(400.0f, Unit.PIXELS);
                             winChangeDev.setModal(true);
@@ -268,7 +340,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
                             VerticalLayout vDev = new VerticalLayout();
 
-                            Table tabDevGroup = new Table("Группы привязки транспортных средств");
+                            Table tabDevGroup = new Table("Транспортные средства");
 
                             tabDevGroup.setPageLength(5);
                             tabDevGroup.setWidth(550.0f, Unit.PIXELS);
