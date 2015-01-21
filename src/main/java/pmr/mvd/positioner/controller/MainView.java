@@ -446,11 +446,25 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                             final Button del = new Button("Удалить", new Button.ClickListener() {
                                 @Override
                                 public void buttonClick(Button.ClickEvent clickEvent) {
-                                    Notification.show("Удаление");
+                                    String mDev = hidden.pullUp("delete_groupdevice");
+                                    String nn = devGroup.get(Integer.parseInt(mDev) - 1).getDevice();
+                                    if (dao.DelGroupDev(nameuser, nn)){
+                                        winChangeDev.close();
+                                    } else {
+                                        Notification.show("Ошибка удаления транспортного средства");
+                                    }
                                 }
                             });
                             del.setEnabled(false);
                             customDevGroup.addComponent(del, "delete");
+
+                            tabDevGroup.addValueChangeListener(new Property.ValueChangeListener() {
+                                @Override
+                                public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                                    del.setEnabled(true);
+                                    hidden.pullDown("delete_groupdevice", String.valueOf(valueChangeEvent.getProperty().getValue()));
+                                }
+                            });
 
                             final Button close = new Button("Закрыть", new Button.ClickListener() {
                                 @Override
