@@ -60,7 +60,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
         MenuBar.MenuItem tracks = menuBar.addItem("Треки", null);
         tracks.addItem("Показать трек выбранного ТС", new SetPathDevice());
-        //tracks.addItem("Задать период отображения трека", null);
+        tracks.addItem("Убрать все треки", new ClearAllPaths());
 
         if (isAdmin.equals("1")) {
             MenuBar.MenuItem admins = menuBar.addItem("Администрирование", null);
@@ -733,9 +733,18 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         @Override
         public void menuSelected(MenuBar.MenuItem menuItem) {
             ArrayList<LatLon> pathPoints = dao.GetPathDevice(hidden.pullUp("device"));
-            try{googleMap.removePolyline(polyline);} catch (NullPointerException e){}
+            try{googleMap.removePolyline(polyline);} catch (NullPointerException ignored){}
             polyline = new GoogleMapPolyline(pathPoints, "#ff0000", 0.5, 5);
             googleMap.addPolyline(polyline);
+        }
+    }
+
+    private class ClearAllPaths implements MenuBar.Command{
+        @Override
+        public void menuSelected(MenuBar.MenuItem menuItem) {
+            try{
+                googleMap.removePolyline(polyline);
+            } catch (NullPointerException ignored){}
         }
     }
 
