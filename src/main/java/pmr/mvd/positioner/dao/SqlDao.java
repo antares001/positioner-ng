@@ -210,23 +210,31 @@ public class SqlDao {
         ArrayList<DevPoint> result = new ArrayList<DevPoint>();
         try {
             Connection connection = sqlConnector.getConnect();
-            Statement statement = connection.createStatement();
-            String queryDevices = "select name, latestPosition_id from devices";
-            ResultSet resultSet = statement.executeQuery(queryDevices);
-            while (resultSet.next()){
-                DevPoint devPoint = new DevPoint();
-                devPoint.setName(resultSet.getString("name"));
-                String queryPos = "select latitude, longitude from positions where id='" + resultSet.getString("latestPosition_id") + "'";
-                Statement statement1 = connection.createStatement();
-                ResultSet rs = statement1.executeQuery(queryPos);
-                while (rs.next()){
-                    devPoint.setLat(rs.getString("latitude"));
-                    devPoint.setLon(rs.getString("longitude"));
+
+            Statement statementUserDev = connection.createStatement();
+            String listDev = "select device from groupdev where username='" + username + "'";
+            ResultSet rsDev = statementUserDev.executeQuery(listDev);
+            while (rsDev.next()) {
+                String devName = rsDev.getString("device");
+                Statement statement = connection.createStatement();
+                String queryDevices = "select name, latestPosition_id from devices where name='" + devName + "'";
+                ResultSet resultSet = statement.executeQuery(queryDevices);
+                while (resultSet.next()) {
+                    DevPoint devPoint = new DevPoint();
+                    devPoint.setName(resultSet.getString("name"));
+                    String queryPos = "select latitude, longitude from positions where id='" + resultSet.getString("latestPosition_id") + "'";
+                    Statement statement1 = connection.createStatement();
+                    ResultSet rs = statement1.executeQuery(queryPos);
+                    while (rs.next()) {
+                        devPoint.setLat(rs.getString("latitude"));
+                        devPoint.setLon(rs.getString("longitude"));
+                    }
+                    statement1.close();
+                    result.add(devPoint);
                 }
-                statement1.close();
-                result.add(devPoint);
+                statement.close();
             }
-            statement.close();
+            statementUserDev.close();
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
