@@ -163,7 +163,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                                     comboBoxUsers.setImmediate(true);
                                     comboBoxUsers.setNullSelectionAllowed(false);
 
-                                    ArrayList<UserSettings> listUsers = dao.GetUsers();
+                                    final ArrayList<UserSettings> listUsers = dao.GetUsers();
                                     for (UserSettings us : listUsers){
                                         comboBoxUsers.addItem(us.getUsername());
                                     }
@@ -174,10 +174,18 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                                         public void buttonClick(Button.ClickEvent clickEvent) {
                                             try{
                                                 String nameuser = comboBoxUsers.getValue().toString();
-                                                if (dao.AddGroupUser(nameuser, namedevice))
-                                                    winAddGroupUser.close();
-                                                else
-                                                    Notification.show("Ошибка добавления пользователя");
+                                                boolean newUser = true;
+                                                for(UserSettings settingsUser : listUsers){
+                                                    if (nameuser.equals(settingsUser.getUsername()))
+                                                        newUser = false;
+                                                }
+                                                if (newUser) {
+                                                    if (dao.AddGroupUser(nameuser, namedevice))
+                                                        winAddGroupUser.close();
+                                                    else
+                                                        Notification.show("Ошибка добавления пользователя");
+                                                } else
+                                                    Notification.show("Такой пользователь уже есть");
                                             } catch (NullPointerException e){
                                                 Notification.show("Не выбран пользователь");
                                             }
