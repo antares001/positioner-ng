@@ -391,4 +391,23 @@ public class SqlDao {
         }
         return result;
     }
+
+    public ArrayList<GroupDev> GetDevices(String username) {
+        ArrayList<GroupDev> result = new ArrayList<GroupDev>();
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statementUserDev = connection.createStatement();
+            String listDev = "select device from groupdev where username='" + username + "'";
+            ResultSet rsDev = statementUserDev.executeQuery(listDev);
+            while (rsDev.next()){
+                GroupDev bean = new GroupDev();
+                bean.setDevice(rsDev.getString("device"));
+                bean.setUser(username);
+                result.add(bean);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 }

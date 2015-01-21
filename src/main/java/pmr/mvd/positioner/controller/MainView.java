@@ -52,10 +52,10 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
         MenuBar.MenuItem automobile = menuBar.addItem("Транспортные средства", null);
         
-        ArrayList<Devices> deviceses = dao.GetDevices();
+        ArrayList<GroupDev> deviceses = dao.GetDevices(username);
         final MenuBar.Command setDataDevices = new SetDataDevices();
-        for(Devices device : deviceses){
-            automobile.addItem(device.getName(), setDataDevices);
+        for(GroupDev device : deviceses){
+            automobile.addItem(device.getDevice(), setDataDevices);
         }
 
         MenuBar.MenuItem tracks = menuBar.addItem("Треки", null);
