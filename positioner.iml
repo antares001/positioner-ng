@@ -10,8 +10,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: org.apache.velocity:velocity:1.7" level="project" />
-    <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.4" level="project" />
     <orderEntry type="library" name="Maven: com.vaadin:vaadin-server:7.3.6" level="project" />
     <orderEntry type="library" name="Maven: com.vaadin:vaadin-sass-compiler:0.9.10" level="project" />
     <orderEntry type="library" name="Maven: com.vaadin.external.flute:flute:1.3.0.gg2" level="project" />
@@ -34,7 +32,7 @@
     <orderEntry type="library" name="Maven: com.github.branflake2267:gwt-maps-api:3.10.0-alpha-7" level="project" />
     <orderEntry type="library" name="Maven: com.google.gwt.google-apis:gwt-ajaxloader:1.1.0" level="project" />
     <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.34" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: com.vaadin:vaadin-testbench-api:7.4.0.beta1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: com.vaadin:vaadin-testbench-api:7.4.0.beta2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.vaadin:vaadin-testbench-core:4.0.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.seleniumhq.selenium:selenium-server:2.43.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.bouncycastle:bcprov-jdk15on:1.48" level="project" />

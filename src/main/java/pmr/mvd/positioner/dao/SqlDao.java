@@ -343,4 +343,44 @@ public class SqlDao {
         }
         return result;
     }
+
+    public ArrayList<GroupDev> GetGroupUser(String nameuser) {
+        ArrayList<GroupDev> result = new ArrayList<GroupDev>();
+
+        String query = "select * from groupdev where username='" + nameuser +"'";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+            while (rs.next()){
+                GroupDev bean = new GroupDev();
+                bean.setId(rs.getString("id"));
+                bean.setUser(rs.getString("username"));
+                bean.setDevice(rs.getString("device"));
+                result.add(bean);
+            }
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public boolean DelGroupDev(String username, String device){
+        boolean result;
+        String query = "delete from groupdev where username='" + username + "' and device='" + device + "'";
+        try {
+            Connection connection = sqlConnector.getConnect();
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            statement.close();
+            connection.close();
+            result = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            result = false;
+        }
+        return result;
+    }
 }

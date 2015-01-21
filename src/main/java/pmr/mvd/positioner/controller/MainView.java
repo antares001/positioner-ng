@@ -3,7 +3,6 @@ package pmr.mvd.positioner.controller;
 import com.vaadin.annotations.Push;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
-import com.vaadin.data.util.filter.Not;
 import com.vaadin.event.Action;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -132,7 +131,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                             Devices d = devices.get(Integer.parseInt(hidden.pullUp("delete_device")) - 1);
                             final String namedevice = d.getName();
 
-                            ArrayList<GroupDev> userGroup = dao.GetGroupDev(namedevice);
+                            final ArrayList<GroupDev> userGroup = dao.GetGroupDev(namedevice);
                             for (GroupDev groupDev : userGroup){
                                 try{
                                     String name = groupDev.getUser();
@@ -175,8 +174,8 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                                             try{
                                                 String nameuser = comboBoxUsers.getValue().toString();
                                                 boolean newUser = true;
-                                                for(UserSettings settingsUser : listUsers){
-                                                    if (nameuser.equals(settingsUser.getUsername()))
+                                                for(GroupDev settingsUser : userGroup){
+                                                    if (nameuser.equals(settingsUser.getUser()))
                                                         newUser = false;
                                                 }
                                                 if (newUser) {
@@ -212,7 +211,14 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                             final Button del = new Button("Удалить", new Button.ClickListener() {
                                 @Override
                                 public void buttonClick(Button.ClickEvent clickEvent) {
-                                    Notification.show("Удаление");
+                                    String uName = hidden.pullUp("delete_groupuser");
+                                    String nmas = userGroup.get(Integer.parseInt(uName) - 1).getUser();
+
+                                    if (dao.DelGroupDev(nmas, namedevice)){
+                                        winChangeDev.close();
+                                    } else {
+                                        Notification.show("Ошибка удаления пользователя");
+                                    }
                                 }
                             });
                             del.setEnabled(false);
@@ -349,9 +355,25 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                             VerticalLayout vDev = new VerticalLayout();
 
                             Table tabDevGroup = new Table("Транспортные средства");
+                            tabDevGroup.setSelectable(true);
 
                             tabDevGroup.setPageLength(5);
                             tabDevGroup.setWidth(550.0f, Unit.PIXELS);
+
+                            tabDevGroup.addContainerProperty("Транспортное средство", String.class, null);
+
+                            final String nameuser = hidden.pullUp("selected_user");
+
+                            final ArrayList<GroupDev> devGroup = dao.GetGroupUser(nameuser);
+                            for (GroupDev groupDev : devGroup){
+                                try {
+                                    String name = groupDev.getDevice();
+
+                                    Object newItem = tabDevGroup.addItem();
+                                    Item row = tabDevGroup.getItem(newItem);
+                                    row.getItemProperty("Транспортное средство").setValue(name);
+                                } catch (NullPointerException ignored){}
+                            }
 
                             vDev.addComponent(tabDevGroup);
 
@@ -360,7 +382,63 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                             final Button add = new Button("Добавить", new Button.ClickListener() {
                                 @Override
                                 public void buttonClick(Button.ClickEvent clickEvent) {
-                                    Notification.show("Добавление");
+                                    final Window winTSUser = new Window("Добавление транспортного средства для пользователя");
+                                    winTSUser.setModal(true);
+                                    winTSUser.setWidth(400.0f, Unit.PIXELS);
+                                    winTSUser.setHeight(200.0f, Unit.PIXELS);
+
+                                    FormLayout flTsUsers = new FormLayout();
+                                    CustomLayout clTsUsers = new CustomLayout("changegroup");
+
+                                    final ComboBox comboBoxTsDev = new ComboBox();
+                                    comboBoxTsDev.setWidth(200.0f, Unit.PIXELS);
+                                    comboBoxTsDev.setImmediate(true);
+                                    comboBoxTsDev.setNullSelectionAllowed(false);
+
+                                    final ArrayList<Devices> tsDevices = dao.GetDevices();
+                                    for(Devices ts : tsDevices){
+                                        comboBoxTsDev.addItem(ts.getName());
+                                    }
+                                    clTsUsers.addComponent(comboBoxTsDev, "group");
+
+                                    final Button saveDevGroup = new Button("Добавить", new Button.ClickListener() {
+                                        @Override
+                                        public void buttonClick(Button.ClickEvent clickEvent) {
+                                            try {
+                                                String namedevice = comboBoxTsDev.getValue().toString();
+                                                boolean newDevice = true;
+                                                for (GroupDev gd : devGroup) {
+                                                    if (namedevice.equals(gd.getDevice()))
+                                                        newDevice = false;
+                                                }
+
+                                                if (newDevice) {
+                                                    if (dao.AddGroupUser(nameuser, namedevice))
+                                                        winTSUser.close();
+                                                    else
+                                                        Notification.show("Ошибка добавления ТС");
+                                                } else {
+                                                    Notification.show("Такое ТС уже есть");
+                                                }
+                                            } catch (NullPointerException e){
+                                                Notification.show("Не выбрано ТС");
+                                            }
+                                        }
+                                    });
+                                    clTsUsers.addComponent(saveDevGroup, "save");
+
+                                    final Button closeDevGroup = new Button("Отмена", new Button.ClickListener() {
+                                        @Override
+                                        public void buttonClick(Button.ClickEvent clickEvent) {
+                                            winTSUser.close();
+                                        }
+                                    });
+                                    clTsUsers.addComponent(closeDevGroup, "close");
+
+                                    flTsUsers.addComponent(clTsUsers);
+                                    winTSUser.setContent(flTsUsers);
+
+                                    UI.getCurrent().addWindow(winTSUser);
                                 }
                             });
                             customDevGroup.addComponent(add, "add");
