@@ -100,12 +100,7 @@ public class GroupListDevices implements Button.ClickListener{
                 });
                 clTsUsers.addComponent(saveDevGroup, "save");
 
-                final Button closeDevGroup = new Button("Отмена", new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent clickEvent) {
-                        winTSUser.close();
-                    }
-                });
+                final Button closeDevGroup = new Button("Отмена", new CloseWindow(winTSUser));
                 clTsUsers.addComponent(closeDevGroup, "close");
 
                 flTsUsers.addComponent(clTsUsers);
@@ -139,12 +134,7 @@ public class GroupListDevices implements Button.ClickListener{
             }
         });
 
-        final Button close = new Button("Закрыть", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                winChangeDev.close();
-            }
-        });
+        final Button close = new Button("Закрыть", new CloseWindow(winChangeDev));
         customDevGroup.addComponent(close, "exit");
         vDev.addComponent(customDevGroup);
 

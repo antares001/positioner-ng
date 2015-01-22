@@ -54,12 +54,7 @@ public class ChangeGroup implements Button.ClickListener{
         });
         layout.addComponent(save, "save");
 
-        final Button close = new Button("Отмена", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                winChGroup.close();
-            }
-        });
+        final Button close = new Button("Отмена", new CloseWindow(winChGroup));
         layout.addComponent(close, "close");
 
         chLayout.addComponent(layout);

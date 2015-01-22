@@ -2,14 +2,12 @@ package pmr.mvd.positioner.controller.MenuSelectedEvents;
 
 import com.vaadin.data.Item;
 import com.vaadin.server.Sizeable;
-import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.*;
 
 import pmr.mvd.positioner.bean.UserSettings;
 import pmr.mvd.positioner.controller.ButtonEvents.*;
 import pmr.mvd.positioner.controller.TableChangeListener.ListAdminUsers;
 import pmr.mvd.positioner.dao.SqlDao;
-import pmr.mvd.positioner.utils.HiddenVariable;
 
 import java.util.ArrayList;
 
@@ -17,6 +15,7 @@ public class AdminUsersMenu implements MenuBar.Command{
     private SqlDao dao = new SqlDao();
     private Table tabUsers = new Table("Пользователи");
     private Window windowAddUser = new Window("Управление пользователями");
+
     private Button changePass = new Button("Сменить пароль", new ChangePassword());
     private Button changeGroup = new Button("Сменить группу", new ChangeGroup());
     private Button changeDev = new Button("ТС", new GroupListDevices());
@@ -81,7 +80,6 @@ public class AdminUsersMenu implements MenuBar.Command{
 
     @Override
     public void menuSelected(MenuBar.MenuItem menuItem) {
-        final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         windowAddUser.setWidth(850.0f, Sizeable.Unit.PIXELS);
         windowAddUser.setHeight(400.0f, Sizeable.Unit.PIXELS);
         windowAddUser.setModal(true);
@@ -122,12 +120,7 @@ public class AdminUsersMenu implements MenuBar.Command{
 
         tabUsers.addValueChangeListener(new ListAdminUsers(this));
 
-        Button exit = new Button("Закрыть",new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                windowAddUser.close();
-            }
-        });
+        Button exit = new Button("Закрыть", new CloseWindow(windowAddUser));
 
         custom.addComponent(addNewUser, "addButton");
         custom.addComponent(changePass, "changePass");

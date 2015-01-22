@@ -77,12 +77,7 @@ public class AddUser implements Button.ClickListener{
         });
         customLayout.addComponent(addNewUser, "addbutton");
 
-        final Button closeNewUser = new Button("Отмена", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                addUser.close();
-            }
-        });
+        final Button closeNewUser = new Button("Отмена", new CloseWindow(addUser));
         customLayout.addComponent(closeNewUser, "close");
 
         formLayout.addComponent(customLayout);

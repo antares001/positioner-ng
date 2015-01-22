@@ -40,12 +40,7 @@ public class AddDevice implements Button.ClickListener{
         });
         layout.addComponent(add, "addbutton");
 
-        Button close = new Button("Закрыть", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                addTs.close();
-            }
-        });
+        Button close = new Button("Закрыть", new CloseWindow(addTs));
         layout.addComponent(close, "close");
 
         formLayout.addComponent(layout);

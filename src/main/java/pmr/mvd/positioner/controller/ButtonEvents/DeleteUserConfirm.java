@@ -32,12 +32,7 @@ public class DeleteUserConfirm implements Button.ClickListener {
         });
         delCustom.addComponent(delConfirm, "delete");
 
-        final Button delClose = new Button("Отмена", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                winDelUser.close();
-            }
-        });
+        final Button delClose = new Button("Отмена", new CloseWindow(winDelUser));
         delCustom.addComponent(delClose, "close");
 
         delLayout.addComponent(delCustom);

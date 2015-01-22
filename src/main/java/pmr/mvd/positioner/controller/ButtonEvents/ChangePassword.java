@@ -46,12 +46,7 @@ public class ChangePassword implements Button.ClickListener{
         });
         chPass.addComponent(changePassButton, "addbutton");
 
-        final Button closeChangePass = new Button("Отмена", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                winChangePass.close();
-            }
-        });
+        final Button closeChangePass = new Button("Отмена", new CloseWindow(winChangePass));
         chPass.addComponent(closeChangePass, "close");
 
         fLayout.addComponent(chPass);

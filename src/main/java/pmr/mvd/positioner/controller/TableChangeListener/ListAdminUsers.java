@@ -31,15 +31,12 @@ public class ListAdminUsers implements Property.ValueChangeListener{
         String numUser = String.valueOf(valueChangeEvent.getProperty().getValue());
         int k = 1;
         for (UserSettings user : users){
-            if (numUser.equals(String.valueOf(k)))
-                setSelectedUsers(user.getUsername());
+            if (numUser.equals(String.valueOf(k))) {
+                HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
+                hidden.pullDel("selected_user");
+                hidden.pullDown("selected_user", user.getUsername());
+            }
             k++;
         }
-    }
-
-    private void setSelectedUsers(String arg){
-        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
-        hidden.pullDel("selected_user");
-        hidden.pullDown("selected_user", arg);
     }
 }
