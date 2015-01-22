@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class AdminUsersMenu implements MenuBar.Command{
     private SqlDao dao = new SqlDao();
     private Table tabUsers = new Table("Пользователи");
-    private Window windowAddUser = new Window("Управление пользователями");
+    private Window window = new Window("Управление пользователями");
 
     private Button changePass = new Button("Сменить пароль", new ChangePassword());
     private Button changeGroup = new Button("Сменить группу", new ChangeGroup());
@@ -31,11 +31,11 @@ public class AdminUsersMenu implements MenuBar.Command{
     }
 
     public Window getWindowAddUser(){
-        return this.windowAddUser;
+        return this.window;
     }
 
     public void setWindowAddUser(Window arg){
-        this.windowAddUser = arg;
+        this.window = arg;
     }
 
     public Button getChangePass(){
@@ -80,9 +80,9 @@ public class AdminUsersMenu implements MenuBar.Command{
 
     @Override
     public void menuSelected(MenuBar.MenuItem menuItem) {
-        windowAddUser.setWidth(850.0f, Sizeable.Unit.PIXELS);
-        windowAddUser.setHeight(400.0f, Sizeable.Unit.PIXELS);
-        windowAddUser.setModal(true);
+        window.setWidth(850.0f, Sizeable.Unit.PIXELS);
+        window.setHeight(400.0f, Sizeable.Unit.PIXELS);
+        window.setModal(true);
         final FormLayout formLayout = new FormLayout();
 
         VerticalLayout vertical = new VerticalLayout();
@@ -120,7 +120,7 @@ public class AdminUsersMenu implements MenuBar.Command{
 
         tabUsers.addValueChangeListener(new ListAdminUsers(this));
 
-        Button exit = new Button("Закрыть", new CloseWindow(windowAddUser));
+        Button exit = new Button("Закрыть", new CloseWindow(window));
 
         custom.addComponent(addNewUser, "addButton");
         custom.addComponent(changePass, "changePass");
@@ -133,7 +133,7 @@ public class AdminUsersMenu implements MenuBar.Command{
 
         formLayout.addComponent(vertical);
 
-        windowAddUser.setContent(formLayout);
-        UI.getCurrent().addWindow(windowAddUser);
+        window.setContent(formLayout);
+        UI.getCurrent().addWindow(window);
     }
 }

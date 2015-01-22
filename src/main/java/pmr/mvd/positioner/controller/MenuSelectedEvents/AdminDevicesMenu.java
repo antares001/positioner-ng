@@ -9,6 +9,7 @@ import pmr.mvd.positioner.bean.Devices;
 import pmr.mvd.positioner.bean.GroupDev;
 import pmr.mvd.positioner.bean.UserSettings;
 import pmr.mvd.positioner.controller.ButtonEvents.AddDevice;
+import pmr.mvd.positioner.controller.ButtonEvents.CloseWindow;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
@@ -17,13 +18,23 @@ import java.util.ArrayList;
 public class AdminDevicesMenu implements MenuBar.Command{
     private SqlDao dao = new SqlDao();
 
+    private Window window = new Window("Управление транспортными средствами");
+
+    public Window getWindow(){
+        return this.window;
+    }
+
+    public void setWindow(Window arg){
+        this.window = arg;
+    }
+
     @Override
     public void menuSelected(MenuBar.MenuItem menuItem) {
         final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
-        final Window windowAddTs = new Window("Управление транспортными средствами");
-        windowAddTs.setWidth(600.0f, Sizeable.Unit.PIXELS);
-        windowAddTs.setHeight(400.0f, Sizeable.Unit.PIXELS);
-        windowAddTs.setModal(true);
+
+        window.setWidth(600.0f, Sizeable.Unit.PIXELS);
+        window.setHeight(400.0f, Sizeable.Unit.PIXELS);
+        window.setModal(true);
         final FormLayout formLayout = new FormLayout();
 
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -226,12 +237,7 @@ public class AdminDevicesMenu implements MenuBar.Command{
             }
         });
 
-        Button exit = new Button("Закрыть",new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                windowAddTs.close();
-            }
-        });
+        Button exit = new Button("Закрыть", new CloseWindow(window));
 
         custom.addComponent(addNewDevice, "addButton");
         custom.addComponent(devGroupButton, "groupDev");
@@ -242,7 +248,7 @@ public class AdminDevicesMenu implements MenuBar.Command{
 
         formLayout.addComponent(verticalLayout);
 
-        windowAddTs.setContent(formLayout);
-        UI.getCurrent().addWindow(windowAddTs);
+        window.setContent(formLayout);
+        UI.getCurrent().addWindow(window);
     }
 }

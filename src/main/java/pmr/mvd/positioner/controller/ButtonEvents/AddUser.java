@@ -10,12 +10,21 @@ import java.util.ArrayList;
 public class AddUser implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
+    private Window window = new Window("Добавить");
+
+    public Window getWindow(){
+        return this.window;
+    }
+
+    public void setWindow(Window arg){
+        this.window = arg;
+    }
+
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
-        final Window addUser = new Window("Добавить");
-        addUser.setWidth(500.0f, Sizeable.Unit.PIXELS);
-        addUser.setHeight(300.0f, Sizeable.Unit.PIXELS);
-        addUser.setModal(true);
+        window.setWidth(500.0f, Sizeable.Unit.PIXELS);
+        window.setHeight(300.0f, Sizeable.Unit.PIXELS);
+        window.setModal(true);
 
         final FormLayout formLayout = new FormLayout();
         final CustomLayout customLayout = new CustomLayout("adduser");
@@ -66,7 +75,7 @@ public class AddUser implements Button.ClickListener{
                             group = "0";
 
                         if (dao.AddNewUser(userName.getValue(), passWord.getValue(), group)) {
-                            addUser.close();
+                            window.close();
                         } else {
                             Notification.show("Ошибка добавления пользователя");
                         }
@@ -77,11 +86,11 @@ public class AddUser implements Button.ClickListener{
         });
         customLayout.addComponent(addNewUser, "addbutton");
 
-        final Button closeNewUser = new Button("Отмена", new CloseWindow(addUser));
+        final Button closeNewUser = new Button("Отмена", new CloseWindow(window));
         customLayout.addComponent(closeNewUser, "close");
 
         formLayout.addComponent(customLayout);
-        addUser.setContent(formLayout);
-        UI.getCurrent().addWindow(addUser);
+        window.setContent(formLayout);
+        UI.getCurrent().addWindow(window);
     }
 }

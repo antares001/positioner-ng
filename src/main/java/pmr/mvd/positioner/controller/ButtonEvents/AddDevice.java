@@ -7,13 +7,22 @@ import pmr.mvd.positioner.dao.SqlDao;
 public class AddDevice implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
+    private Window window = new Window("Добавить");
+
+    public Window getWindow(){
+        return this.window;
+    }
+
+    public void setWindow(Window arg){
+        this.window = arg;
+    }
+
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
-        final Window addTs = new Window("Добавить");
         final FormLayout formLayout = new FormLayout();
-        addTs.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        addTs.setHeight(200.0f, Sizeable.Unit.PIXELS);
-        addTs.setModal(true);
+        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
+        window.setHeight(200.0f, Sizeable.Unit.PIXELS);
+        window.setModal(true);
 
         final CustomLayout layout = new CustomLayout("newuser");
 
@@ -32,7 +41,7 @@ public class AddDevice implements Button.ClickListener{
                     Notification.show("Не введен уникальный идентификатор");
                 } else {
                     if(dao.AddNewDevice(username.getValue(), idname.getValue()))
-                        addTs.close();
+                        window.close();
                     else
                         Notification.show("Ошибка добавления ТС");
                 }
@@ -40,12 +49,12 @@ public class AddDevice implements Button.ClickListener{
         });
         layout.addComponent(add, "addbutton");
 
-        Button close = new Button("Закрыть", new CloseWindow(addTs));
+        Button close = new Button("Закрыть", new CloseWindow(window));
         layout.addComponent(close, "close");
 
         formLayout.addComponent(layout);
 
-        addTs.setContent(formLayout);
-        UI.getCurrent().addWindow(addTs);
+        window.setContent(formLayout);
+        UI.getCurrent().addWindow(window);
     }
 }

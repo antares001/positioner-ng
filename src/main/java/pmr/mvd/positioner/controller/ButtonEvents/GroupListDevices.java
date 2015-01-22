@@ -15,13 +15,22 @@ import java.util.ArrayList;
 public class GroupListDevices implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
+    private Window window = new Window("Список транспортных средств пользователя");
+
+    public Window getWindow(){
+        return this.window;
+    }
+
+    public void setWindow(Window arg){
+        this.window = arg;
+    }
+
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
         final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
-        final Window winChangeDev = new Window("Список транспортных средств пользователя");
-        winChangeDev.setWidth(600.0f, Sizeable.Unit.PIXELS);
-        winChangeDev.setHeight(400.0f, Sizeable.Unit.PIXELS);
-        winChangeDev.setModal(true);
+        window.setWidth(600.0f, Sizeable.Unit.PIXELS);
+        window.setHeight(400.0f, Sizeable.Unit.PIXELS);
+        window.setModal(true);
 
         FormLayout chDevLayaout = new FormLayout();
 
@@ -117,7 +126,7 @@ public class GroupListDevices implements Button.ClickListener{
                 String mDev = hidden.pullUp("delete_groupdevice");
                 String nn = devGroup.get(Integer.parseInt(mDev) - 1).getDevice();
                 if (dao.DelGroupDev(nameuser, nn)){
-                    winChangeDev.close();
+                    window.close();
                 } else {
                     Notification.show("Ошибка удаления транспортного средства");
                 }
@@ -134,12 +143,12 @@ public class GroupListDevices implements Button.ClickListener{
             }
         });
 
-        final Button close = new Button("Закрыть", new CloseWindow(winChangeDev));
+        final Button close = new Button("Закрыть", new CloseWindow(window));
         customDevGroup.addComponent(close, "exit");
         vDev.addComponent(customDevGroup);
 
         chDevLayaout.addComponent(vDev);
-        winChangeDev.setContent(chDevLayaout);
-        UI.getCurrent().addWindow(winChangeDev);
+        window.setContent(chDevLayaout);
+        UI.getCurrent().addWindow(window);
     }
 }
