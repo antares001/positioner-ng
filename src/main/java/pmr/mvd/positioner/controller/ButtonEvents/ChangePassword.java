@@ -11,52 +11,54 @@ import java.util.HashMap;
 public class ChangePassword implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
+    private PasswordField chPassText = new PasswordField();
+    private PasswordField chRepeatText = new PasswordField();
+    private HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
+    final Window window = new Window("Смена пароля пользователя " + hidden.pullUp("selected_user"));
+
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
-        final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
-
-        final Window winChangePass = new Window("Смена пароля пользователя " + hidden.pullUp("selected_user"));
-        winChangePass.setWidth(500.0f, Sizeable.Unit.PIXELS);
-        winChangePass.setHeight(200.0f, Sizeable.Unit.PIXELS);
-        winChangePass.setModal(true);
+        window.setWidth(500.0f, Sizeable.Unit.PIXELS);
+        window.setHeight(200.0f, Sizeable.Unit.PIXELS);
+        window.setModal(true);
 
         final FormLayout fLayout = new FormLayout();
         final CustomLayout chPass = new CustomLayout("changepass");
 
-        final PasswordField chPassText = new PasswordField();
         chPass.addComponent(chPassText, "password");
-
-        final PasswordField chRepeatText = new PasswordField();
         chPass.addComponent(chRepeatText, "repeat");
 
-        final Button changePassButton = new Button("Сменить", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                if (chPassText.getValue().equals(""))
-                    Notification.show("Введите пароль");
-                else if (chRepeatText.getValue().equals(""))
-                    Notification.show("Повторите пароль");
-                else if (!chPassText.getValue().equals(chRepeatText.getValue()))
-                    Notification.show("Пароли не совпадают");
-                else {
-                    HashMap<String,String> params = new HashMap<String, String>();
-                    params.put("value", chPassText.getValue());
-                    params.put("user", hidden.pullUp("selected_user"));
-
-                    if (dao.ExecuteOperation(params, "change_password")) {
-                        winChangePass.close();
-                    } else
-                        Notification.show("Ошибка смены пароля");
-                }
-            }
-        });
+        final Button changePassButton = new Button("Сменить");
+        changePassButton.addClickListener(new Change());
         chPass.addComponent(changePassButton, "addbutton");
 
-        final Button closeChangePass = new Button("Отмена", new CloseWindow(winChangePass));
+        final Button closeChangePass = new Button("Отмена", new CloseWindow(window));
         chPass.addComponent(closeChangePass, "close");
 
         fLayout.addComponent(chPass);
-        winChangePass.setContent(fLayout);
-        UI.getCurrent().addWindow(winChangePass);
+        window.setContent(fLayout);
+        UI.getCurrent().addWindow(window);
+    }
+
+    private class Change implements Button.ClickListener{
+        @Override
+        public void buttonClick(Button.ClickEvent clickEvent) {
+            if (chPassText.getValue().equals(""))
+                Notification.show("Введите пароль");
+            else if (chRepeatText.getValue().equals(""))
+                Notification.show("Повторите пароль");
+            else if (!chPassText.getValue().equals(chRepeatText.getValue()))
+                Notification.show("Пароли не совпадают");
+            else {
+                HashMap<String,String> params = new HashMap<String, String>();
+                params.put("value", chPassText.getValue());
+                params.put("user", hidden.pullUp("selected_user"));
+
+                if (dao.ExecuteOperation(params, "change_password")) {
+                    window.close();
+                } else
+                    Notification.show("Ошибка смены пароля");
+            }
+        }
     }
 }

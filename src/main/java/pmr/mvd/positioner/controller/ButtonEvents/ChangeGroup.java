@@ -12,19 +12,19 @@ import java.util.HashMap;
 public class ChangeGroup implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
+    private ComboBox comboBox = new ComboBox();
+    private HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
+    private Window window = new Window("Изменение группы для " + hidden.pullUp("selected_user"));
+
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
-        final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
-
-        final Window winChGroup = new Window("Изменение группы для " + hidden.pullUp("selected_user"));
-        winChGroup.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        winChGroup.setHeight(200.0f, Sizeable.Unit.PIXELS);
-        winChGroup.setModal(true);
+        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
+        window.setHeight(200.0f, Sizeable.Unit.PIXELS);
+        window.setModal(true);
 
         FormLayout chLayout = new FormLayout();
         CustomLayout layout = new CustomLayout("changegroup");
 
-        final ComboBox comboBox = new ComboBox();
         comboBox.setFilteringMode(FilteringMode.CONTAINS);
         comboBox.setNullSelectionAllowed(false);
         comboBox.setImmediate(true);
@@ -33,38 +33,42 @@ public class ChangeGroup implements Button.ClickListener{
         comboBox.addItem("Администратор");
         layout.addComponent(comboBox, "group");
 
-        final Button save = new Button("Сменить", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                try {
-                    final String value = comboBox.getValue().toString();
-
-                    String group = "";
-                    if (value.equals("Администратор"))
-                        group = "1";
-                    else if (value.equals("Пользователь"))
-                        group = "0";
-
-                    HashMap<String,String> params = new HashMap<String, String>();
-                    params.put("user", hidden.pullUp("selected_user"));
-                    params.put("group", group);
-
-                    if (dao.ExecuteOperation(params, "change_group")) {
-                        winChGroup.close();
-                    } else
-                        Notification.show("Ошибка смены группы");
-                } catch (NullPointerException e) {
-                    Notification.show("Не выбрана группа");
-                }
-            }
-        });
+        final Button save = new Button("Сменить");
+        save.addClickListener(new Change());
         layout.addComponent(save, "save");
 
-        final Button close = new Button("Отмена", new CloseWindow(winChGroup));
+        final Button close = new Button("Отмена", new CloseWindow(window));
         layout.addComponent(close, "close");
 
         chLayout.addComponent(layout);
-        winChGroup.setContent(chLayout);
-        UI.getCurrent().addWindow(winChGroup);
+        window.setContent(chLayout);
+        UI.getCurrent().addWindow(window);
+    }
+
+    private class Change implements Button.ClickListener{
+        @Override
+        public void buttonClick(Button.ClickEvent clickEvent) {
+            final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
+            try {
+                final String value = comboBox.getValue().toString();
+
+                String group = "";
+                if (value.equals("Администратор"))
+                    group = "1";
+                else if (value.equals("Пользователь"))
+                    group = "0";
+
+                HashMap<String,String> params = new HashMap<String, String>();
+                params.put("user", hidden.pullUp("selected_user"));
+                params.put("group", group);
+
+                if (dao.ExecuteOperation(params, "change_group")) {
+                    window.close();
+                } else
+                    Notification.show("Ошибка смены группы");
+            } catch (NullPointerException e) {
+                Notification.show("Не выбрана группа");
+            }
+        }
     }
 }
