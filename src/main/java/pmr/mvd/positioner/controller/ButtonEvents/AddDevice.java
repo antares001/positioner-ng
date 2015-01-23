@@ -4,6 +4,8 @@ import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.dao.SqlDao;
 
+import java.util.HashMap;
+
 public class AddDevice implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
@@ -40,7 +42,10 @@ public class AddDevice implements Button.ClickListener{
                 } else if (idname.getValue().equals("")){
                     Notification.show("Не введен уникальный идентификатор");
                 } else {
-                    if(dao.AddNewDevice(username.getValue(), idname.getValue()))
+                    HashMap<String,String> params = new HashMap<String,String>();
+                    params.put("name", username.getValue());
+                    params.put("id", idname.getValue());
+                    if (dao.ExecuteOperation(params, "add_new_device"))
                         window.close();
                     else
                         Notification.show("Ошибка добавления ТС");

@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SqlDao {
     private MySQLConnector sqlConnector = new MySQLConnector();
@@ -151,26 +152,74 @@ public class SqlDao {
         return result;
     }
 
-    public boolean AddNewDevice(String name, String id){
-        boolean result;
-        String query = "insert into devices(name,uniqueId) values('" + name + "','" + id +"')";
-        try {
-            Connection connection = sqlConnector.getConnect();
-            Statement statement = connection.createStatement();
-            statement.execute(query);
-            statement.close();
-            connection.close();
-            result = true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            result = false;
-        }
+    private int getOperation(String arg){
+        int result = -1;
+
+        if (arg.equals("add_new_device"))
+            return 0;
+        if (arg.equals("del_device"))
+            return 1;
+        if (arg.equals("add_new_user"))
+            return 2;
+        if (arg.equals("change_password"))
+            return 3;
+        if (arg.equals("delete_user"))
+            return 4;
+        if (arg.equals("change_group"))
+            return 5;
+        if (arg.equals("add_group_user"))
+            return 6;
+        if (arg.equals("del_group_dev"))
+            return 7;
+
         return result;
     }
 
-    public boolean DelDevice(String name){
+    public boolean ExecuteOperation(HashMap<String,String> params, String operation){
         boolean result;
-        String query = "delete from devices where name='" + name + "'";
+        String query = "";
+        switch (getOperation(operation)){
+            case 0:
+                String name = params.get("name");
+                String id = params.get("id");
+                query = "insert into devices(name,uniqueId) values('" + name + "','" + id +"')";
+                break;
+            case 1:
+                name = params.get("name");
+                query = "delete from devices where name='" + name + "'";
+                break;
+            case 2:
+                String role = params.get("role");
+                String value = params.get("value");
+                String value1 = params.get("value1");
+                query = "insert into users(admin,login,password,userSettings_id) values(" + role + ",'" + value + "','" + value1 +"', 1)";
+                break;
+            case 3:
+                value = params.get("value");
+                String user = params.get("user");
+                query = "update users set password='" + value + "' where login='" + user + "'";
+                break;
+            case 4:
+                user = params.get("user");
+                query = "delete from users where login = '" + user + "'";
+                break;
+            case 5:
+                String group = params.get("group");
+                user = params.get("user");
+                query = "update users set admin=" + group + " where login='" + user + "'";
+                break;
+            case 6:
+                user = params.get("user");
+                String device = params.get("device");
+                query = "insert into groupdev(username,device) values('" + user + "', '" + device + "')";
+                break;
+            case 7:
+                user = params.get("user");
+                device = params.get("device");
+                query = "delete from groupdev where username='" + user + "' and device='" + device + "'";
+                break;
+        }
+
         try {
             Connection connection = sqlConnector.getConnect();
             Statement statement = connection.createStatement();
@@ -242,76 +291,6 @@ public class SqlDao {
         return result;
     }
 
-    public boolean AddNewUser(String value, String value1, String role) {
-        boolean result;
-        String query = "insert into users(admin,login,password,userSettings_id) values(" + role +
-                ",'" + value + "','" + value1 +"', 1)";
-        try {
-            Connection connection = sqlConnector.getConnect();
-            Statement statement = connection.createStatement();
-            statement.execute(query);
-            statement.close();
-            connection.close();
-            result = true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            result = false;
-        }
-        return result;
-    }
-
-    public boolean ChangePassword(String chUser, String value) {
-        boolean result;
-        String query = "update users set password='" + value + "' where login='" + chUser + "'";
-        try {
-            Connection connection = sqlConnector.getConnect();
-            Statement statement = connection.createStatement();
-            statement.execute(query);
-            statement.close();
-            connection.close();
-            result = true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            result = false;
-        }
-        return result;
-    }
-
-    public boolean DelUser(String user) {
-        boolean result;
-        String query = "delete from users where login = '" + user + "'";
-        System.out.println(query);
-        try {
-            Connection connection = sqlConnector.getConnect();
-            Statement statement = connection.createStatement();
-            statement.execute(query);
-            statement.close();
-            connection.close();
-            result = true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            result = false;
-        }
-        return result;
-    }
-
-    public boolean ChangeGroup(String user, String group) {
-        boolean result;
-        String query = "update users set admin=" + group + " where login='" + user + "'";
-        try {
-            Connection connection = sqlConnector.getConnect();
-            Statement statement = connection.createStatement();
-            statement.execute(query);
-            statement.close();
-            connection.close();
-            result = true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            result = false;
-        }
-        return result;
-    }
-
     public ArrayList<GroupDev> GetGroupDev(String device) {
         ArrayList<GroupDev> result = new ArrayList<GroupDev>();
 
@@ -335,23 +314,6 @@ public class SqlDao {
         return result;
     }
 
-    public boolean AddGroupUser(String nameuser, String namedevice) {
-        boolean result;
-        String query = "insert into groupdev(username,device) values('" + nameuser + "', '" + namedevice + "')";
-        try {
-            Connection connection = sqlConnector.getConnect();
-            Statement statement = connection.createStatement();
-            statement.execute(query);
-            statement.close();
-            connection.close();
-            result = true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            result = false;
-        }
-        return result;
-    }
-
     public ArrayList<GroupDev> GetGroupUser(String nameuser) {
         ArrayList<GroupDev> result = new ArrayList<GroupDev>();
 
@@ -371,23 +333,6 @@ public class SqlDao {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-        return result;
-    }
-
-    public boolean DelGroupDev(String username, String device){
-        boolean result;
-        String query = "delete from groupdev where username='" + username + "' and device='" + device + "'";
-        try {
-            Connection connection = sqlConnector.getConnect();
-            Statement statement = connection.createStatement();
-            statement.execute(query);
-            statement.close();
-            connection.close();
-            result = true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            result = false;
         }
         return result;
     }

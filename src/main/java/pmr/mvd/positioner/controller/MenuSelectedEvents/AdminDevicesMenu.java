@@ -14,6 +14,7 @@ import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class AdminDevicesMenu implements MenuBar.Command{
     private SqlDao dao = new SqlDao();
@@ -142,7 +143,11 @@ public class AdminDevicesMenu implements MenuBar.Command{
                                             newUser = false;
                                     }
                                     if (newUser) {
-                                        if (dao.AddGroupUser(nameuser, namedevice))
+                                        HashMap<String,String> params = new HashMap<String, String>();
+                                        params.put("user", nameuser);
+                                        params.put("device", namedevice);
+
+                                        if (dao.ExecuteOperation(params, "add_group_user"))
                                             winAddGroupUser.close();
                                         else
                                             Notification.show("Ошибка добавления пользователя");
@@ -177,7 +182,11 @@ public class AdminDevicesMenu implements MenuBar.Command{
                         String uName = hidden.pullUp("delete_groupuser");
                         String nmas = userGroup.get(Integer.parseInt(uName) - 1).getUser();
 
-                        if (dao.DelGroupDev(nmas, namedevice)){
+                        HashMap<String,String> params = new HashMap<String, String>();
+                        params.put("user", nmas);
+                        params.put("device", namedevice);
+
+                        if (dao.ExecuteOperation(params, "del_group_dev")){
                             winChangeDev.close();
                         } else {
                             Notification.show("Ошибка удаления пользователя");
@@ -217,7 +226,11 @@ public class AdminDevicesMenu implements MenuBar.Command{
                 ArrayList<Devices> devices = dao.GetDevices();
                 try {
                     Devices d = devices.get(Integer.parseInt(hidden.pullUp("delete_device")) - 1);
-                    if (dao.DelDevice(d.getName()))
+
+                    HashMap<String,String> params = new HashMap<String, String>();
+                    params.put("name", d.getName());
+
+                    if (dao.ExecuteOperation(params, "del_device"))
                         Notification.show("Удалено транс. средство: " + d.getName() + "");
                     else
                         Notification.show("Ошибка удаления ТС");

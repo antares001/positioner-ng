@@ -6,6 +6,8 @@ import com.vaadin.ui.*;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
+import java.util.HashMap;
+
 public class DeleteUserConfirm implements Button.ClickListener {
     private SqlDao dao = new SqlDao();
 
@@ -24,7 +26,10 @@ public class DeleteUserConfirm implements Button.ClickListener {
         final Button delConfirm = new Button("Удалить", new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                if (dao.DelUser(hidden.pullUp("selected_user")))
+                HashMap<String,String> params = new HashMap<String, String>();
+                params.put("user", hidden.pullUp("selected_user"));
+
+                if (dao.ExecuteOperation(params, "delete_user"))
                     winDelUser.close();
                 else
                     Notification.show("Ошибка удаления пользователя");

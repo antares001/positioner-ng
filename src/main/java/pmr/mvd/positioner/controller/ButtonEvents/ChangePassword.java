@@ -6,6 +6,8 @@ import com.vaadin.ui.*;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
+import java.util.HashMap;
+
 public class ChangePassword implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
@@ -37,7 +39,11 @@ public class ChangePassword implements Button.ClickListener{
                 else if (!chPassText.getValue().equals(chRepeatText.getValue()))
                     Notification.show("Пароли не совпадают");
                 else {
-                    if (dao.ChangePassword(hidden.pullUp("selected_user"), chPassText.getValue()))
+                    HashMap<String,String> params = new HashMap<String, String>();
+                    params.put("value", chPassText.getValue());
+                    params.put("user", hidden.pullUp("selected_user"));
+
+                    if (dao.ExecuteOperation(params, "change_password"))
                         winChangePass.close();
                     else
                         Notification.show("Ошибка смены пароля");

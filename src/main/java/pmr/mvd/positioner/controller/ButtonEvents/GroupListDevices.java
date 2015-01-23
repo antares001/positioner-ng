@@ -11,6 +11,7 @@ import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GroupListDevices implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
@@ -95,7 +96,11 @@ public class GroupListDevices implements Button.ClickListener{
                             }
 
                             if (newDevice) {
-                                if (dao.AddGroupUser(nameuser, namedevice))
+                                HashMap<String,String> params = new HashMap<String, String>();
+                                params.put("user", nameuser);
+                                params.put("device", namedevice);
+
+                                if (dao.ExecuteOperation(params, "add_group_user"))
                                     winTSUser.close();
                                 else
                                     Notification.show("Ошибка добавления ТС");
@@ -125,7 +130,12 @@ public class GroupListDevices implements Button.ClickListener{
             public void buttonClick(Button.ClickEvent clickEvent) {
                 String mDev = hidden.pullUp("delete_groupdevice");
                 String nn = devGroup.get(Integer.parseInt(mDev) - 1).getDevice();
-                if (dao.DelGroupDev(nameuser, nn)){
+
+                HashMap<String,String> params = new HashMap<String, String>();
+                params.put("user", nameuser);
+                params.put("device", nn);
+
+                if (dao.ExecuteOperation(params, "del_group_dev")){
                     window.close();
                 } else {
                     Notification.show("Ошибка удаления транспортного средства");

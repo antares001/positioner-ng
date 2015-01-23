@@ -7,6 +7,8 @@ import com.vaadin.ui.*;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
+import java.util.HashMap;
+
 public class ChangeGroup implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
@@ -43,7 +45,11 @@ public class ChangeGroup implements Button.ClickListener{
                     else if (value.equals("Пользователь"))
                         group = "0";
 
-                    if (dao.ChangeGroup(hidden.pullUp("selected_user"), group))
+                    HashMap<String,String> params = new HashMap<String, String>();
+                    params.put("user", hidden.pullUp("selected_user"));
+                    params.put("group", group);
+
+                    if (dao.ExecuteOperation(params, "change_group"))
                         winChGroup.close();
                     else
                         Notification.show("Ошибка смены группы");

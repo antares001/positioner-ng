@@ -6,6 +6,7 @@ import pmr.mvd.positioner.bean.UserSettings;
 import pmr.mvd.positioner.dao.SqlDao;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class AddUser implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
@@ -74,7 +75,12 @@ public class AddUser implements Button.ClickListener{
                         else if (value.equals("Пользователь"))
                             group = "0";
 
-                        if (dao.AddNewUser(userName.getValue(), passWord.getValue(), group)) {
+                        HashMap<String,String> params = new HashMap<String, String>();
+                        params.put("role", group);
+                        params.put("value", userName.getValue());
+                        params.put("value1", passWord.getValue());
+
+                        if (dao.ExecuteOperation(params, "add_new_user")){
                             window.close();
                         } else {
                             Notification.show("Ошибка добавления пользователя");
