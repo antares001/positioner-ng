@@ -17,6 +17,11 @@ public class GroupListDevices implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
     private Window window = new Window("Список транспортных средств пользователя");
+    private Button del = new Button("Удалить");
+    private HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
+    private String nameuser = hidden.pullUp("selected_user");
+    private ArrayList<GroupDev> devGroup = dao.GetGroupUser(nameuser);
+    private Table tabDevGroup = new Table("Транспортные средства");
 
     public Window getWindow(){
         return this.window;
@@ -28,7 +33,6 @@ public class GroupListDevices implements Button.ClickListener{
 
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
-        final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         window.setWidth(600.0f, Sizeable.Unit.PIXELS);
         window.setHeight(400.0f, Sizeable.Unit.PIXELS);
         window.setModal(true);
@@ -37,17 +41,12 @@ public class GroupListDevices implements Button.ClickListener{
 
         VerticalLayout vDev = new VerticalLayout();
 
-        final Table tabDevGroup = new Table("Транспортные средства");
         tabDevGroup.setSelectable(true);
 
         tabDevGroup.setPageLength(5);
         tabDevGroup.setWidth(550.0f, Sizeable.Unit.PIXELS);
 
         tabDevGroup.addContainerProperty("Транспортное средство", String.class, null);
-
-        final String nameuser = hidden.pullUp("selected_user");
-
-        final ArrayList<GroupDev> devGroup = dao.GetGroupUser(nameuser);
         for (GroupDev groupDev : devGroup){
             try {
                 String name = groupDev.getDevice();
@@ -136,43 +135,11 @@ public class GroupListDevices implements Button.ClickListener{
         });
         customDevGroup.addComponent(add, "add");
 
-        final Button del = new Button("Удалить", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                String mDev = hidden.pullUp("delete_groupdevice");
-                String nn = devGroup.get(Integer.parseInt(mDev) - 1).getDevice();
-
-                HashMap<String,String> params = new HashMap<String, String>();
-                params.put("user", nameuser);
-                params.put("device", nn);
-
-                if (dao.ExecuteOperation(params, "del_group_dev")){
-                    window.close();
-
-                    for (GroupDev groupDev : devGroup){
-                        try {
-                            String name = groupDev.getDevice();
-
-                            Object newItem = tabDevGroup.addItem();
-                            Item row = tabDevGroup.getItem(newItem);
-                            row.getItemProperty("Транспортное средство").setValue(name);
-                        } catch (NullPointerException ignored){}
-                    }
-                } else {
-                    Notification.show("Ошибка удаления транспортного средства");
-                }
-            }
-        });
+        del.addClickListener(new Delete());
         del.setEnabled(false);
         customDevGroup.addComponent(del, "delete");
 
-        tabDevGroup.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-                del.setEnabled(true);
-                hidden.pullDown("delete_groupdevice", String.valueOf(valueChangeEvent.getProperty().getValue()));
-            }
-        });
+        tabDevGroup.addValueChangeListener(new DevTableListener());
 
         final Button close = new Button("Закрыть", new CloseWindow(window));
         customDevGroup.addComponent(close, "exit");
@@ -181,5 +148,41 @@ public class GroupListDevices implements Button.ClickListener{
         chDevLayaout.addComponent(vDev);
         window.setContent(chDevLayaout);
         UI.getCurrent().addWindow(window);
+    }
+
+    private class DevTableListener implements Property.ValueChangeListener{
+        @Override
+        public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+            del.setEnabled(true);
+            hidden.pullDown("delete_groupdevice", String.valueOf(valueChangeEvent.getProperty().getValue()));
+        }
+    }
+
+    private class Delete implements Button.ClickListener{
+        @Override
+        public void buttonClick(Button.ClickEvent clickEvent) {
+            String mDev = hidden.pullUp("delete_groupdevice");
+            String nn = devGroup.get(Integer.parseInt(mDev) - 1).getDevice();
+
+            HashMap<String,String> params = new HashMap<String, String>();
+            params.put("user", nameuser);
+            params.put("device", nn);
+
+            if (dao.ExecuteOperation(params, "del_group_dev")){
+                window.close();
+
+                for (GroupDev groupDev : devGroup){
+                    try {
+                        String name = groupDev.getDevice();
+
+                        Object newItem = tabDevGroup.addItem();
+                        Item row = tabDevGroup.getItem(newItem);
+                        row.getItemProperty("Транспортное средство").setValue(name);
+                    } catch (NullPointerException ignored){}
+                }
+            } else {
+                Notification.show("Ошибка удаления транспортного средства");
+            }
+        }
     }
 }
