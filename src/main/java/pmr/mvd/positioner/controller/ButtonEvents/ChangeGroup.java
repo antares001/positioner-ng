@@ -49,9 +49,9 @@ public class ChangeGroup implements Button.ClickListener{
                     params.put("user", hidden.pullUp("selected_user"));
                     params.put("group", group);
 
-                    if (dao.ExecuteOperation(params, "change_group"))
+                    if (dao.ExecuteOperation(params, "change_group")) {
                         winChGroup.close();
-                    else
+                    } else
                         Notification.show("Ошибка смены группы");
                 } catch (NullPointerException e) {
                     Notification.show("Не выбрана группа");

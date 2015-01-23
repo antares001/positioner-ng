@@ -37,7 +37,7 @@ public class GroupListDevices implements Button.ClickListener{
 
         VerticalLayout vDev = new VerticalLayout();
 
-        Table tabDevGroup = new Table("Транспортные средства");
+        final Table tabDevGroup = new Table("Транспортные средства");
         tabDevGroup.setSelectable(true);
 
         tabDevGroup.setPageLength(5);
@@ -100,9 +100,20 @@ public class GroupListDevices implements Button.ClickListener{
                                 params.put("user", nameuser);
                                 params.put("device", namedevice);
 
-                                if (dao.ExecuteOperation(params, "add_group_user"))
+                                if (dao.ExecuteOperation(params, "add_group_user")) {
                                     winTSUser.close();
-                                else
+                                    tabDevGroup.removeAllItems();
+
+                                    for (GroupDev groupDev : devGroup){
+                                        try {
+                                            String name = groupDev.getDevice();
+
+                                            Object newItem = tabDevGroup.addItem();
+                                            Item row = tabDevGroup.getItem(newItem);
+                                            row.getItemProperty("Транспортное средство").setValue(name);
+                                        } catch (NullPointerException ignored){}
+                                    }
+                                } else
                                     Notification.show("Ошибка добавления ТС");
                             } else {
                                 Notification.show("Такое ТС уже есть");
@@ -137,6 +148,16 @@ public class GroupListDevices implements Button.ClickListener{
 
                 if (dao.ExecuteOperation(params, "del_group_dev")){
                     window.close();
+
+                    for (GroupDev groupDev : devGroup){
+                        try {
+                            String name = groupDev.getDevice();
+
+                            Object newItem = tabDevGroup.addItem();
+                            Item row = tabDevGroup.getItem(newItem);
+                            row.getItemProperty("Транспортное средство").setValue(name);
+                        } catch (NullPointerException ignored){}
+                    }
                 } else {
                     Notification.show("Ошибка удаления транспортного средства");
                 }

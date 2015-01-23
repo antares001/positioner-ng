@@ -43,9 +43,9 @@ public class ChangePassword implements Button.ClickListener{
                     params.put("value", chPassText.getValue());
                     params.put("user", hidden.pullUp("selected_user"));
 
-                    if (dao.ExecuteOperation(params, "change_password"))
+                    if (dao.ExecuteOperation(params, "change_password")) {
                         winChangePass.close();
-                    else
+                    } else
                         Notification.show("Ошибка смены пароля");
                 }
             }

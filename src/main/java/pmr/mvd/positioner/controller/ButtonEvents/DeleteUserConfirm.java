@@ -29,9 +29,9 @@ public class DeleteUserConfirm implements Button.ClickListener {
                 HashMap<String,String> params = new HashMap<String, String>();
                 params.put("user", hidden.pullUp("selected_user"));
 
-                if (dao.ExecuteOperation(params, "delete_user"))
+                if (dao.ExecuteOperation(params, "delete_user")) {
                     winDelUser.close();
-                else
+                } else
                     Notification.show("Ошибка удаления пользователя");
             }
         });
