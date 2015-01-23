@@ -1,8 +1,10 @@
 package pmr.mvd.positioner.controller.ButtonEvents;
 
+import com.vaadin.data.Item;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.bean.UserSettings;
+import pmr.mvd.positioner.controller.MenuSelectedEvents.AdminUsersMenu;
 import pmr.mvd.positioner.dao.SqlDao;
 
 import java.util.ArrayList;
@@ -12,6 +14,11 @@ public class AddUser implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
     private Window window = new Window("Добавить");
+    private AdminUsersMenu adminUsersMenu;
+
+    public AddUser(AdminUsersMenu arg) {
+        this.adminUsersMenu = arg;
+    }
 
     public Window getWindow(){
         return this.window;
@@ -82,6 +89,23 @@ public class AddUser implements Button.ClickListener{
 
                         if (dao.ExecuteOperation(params, "add_new_user")){
                             window.close();
+
+                            Table table = adminUsersMenu.getTabUsers();
+                            table.removeAllItems();
+
+                            ArrayList<UserSettings> usersNew = dao.GetUsers();
+                            for(UserSettings settings : users){
+                                String groups = settings.getGroup();
+                                if (groups.equals("1"))
+                                    groups = "Администратор";
+                                else if (group.equals("0"))
+                                    groups = "Пользователь";
+
+                                Object newItem = table.addItem();
+                                Item row = table.getItem(newItem);
+                                row.getItemProperty("Логин").setValue(settings.getUsername());
+                                row.getItemProperty("Группа").setValue(groups);
+                            }
                         } else {
                             Notification.show("Ошибка добавления пользователя");
                         }

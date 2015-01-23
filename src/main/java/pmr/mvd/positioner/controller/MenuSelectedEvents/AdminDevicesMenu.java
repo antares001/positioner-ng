@@ -91,7 +91,7 @@ public class AdminDevicesMenu implements MenuBar.Command{
 
                 VerticalLayout vDev = new VerticalLayout();
 
-                Table tabDevGroup = new Table("Список пользователей");
+                final Table tabDevGroup = new Table("Список пользователей");
                 tabDevGroup.setSelectable(true);
 
                 tabDevGroup.setPageLength(5);
@@ -155,9 +155,22 @@ public class AdminDevicesMenu implements MenuBar.Command{
                                         params.put("user", nameuser);
                                         params.put("device", namedevice);
 
-                                        if (dao.ExecuteOperation(params, "add_group_user"))
+                                        if (dao.ExecuteOperation(params, "add_group_user")) {
                                             winAddGroupUser.close();
-                                        else
+
+                                            tabDevGroup.removeAllItems();
+
+                                            final ArrayList<GroupDev> userGroup = dao.GetGroupDev(namedevice);
+                                            for (GroupDev groupDev : userGroup){
+                                                try{
+                                                    String name = groupDev.getUser();
+
+                                                    Object newItem = tabDevGroup.addItem();
+                                                    Item row = tabDevGroup.getItem(newItem);
+                                                    row.getItemProperty("Пользователь").setValue(name);
+                                                }catch (NullPointerException ignored){}
+                                            }
+                                        }else
                                             Notification.show("Ошибка добавления пользователя");
                                     } else
                                         Notification.show("Такой пользователь уже есть");
@@ -195,7 +208,18 @@ public class AdminDevicesMenu implements MenuBar.Command{
                         params.put("device", namedevice);
 
                         if (dao.ExecuteOperation(params, "del_group_dev")){
-                            winChangeDev.close();
+                            tabDevGroup.removeAllItems();
+
+                            final ArrayList<GroupDev> userGroup = dao.GetGroupDev(namedevice);
+                            for (GroupDev groupDev : userGroup){
+                                try{
+                                    String name = groupDev.getUser();
+
+                                    Object newItem = tabDevGroup.addItem();
+                                    Item row = tabDevGroup.getItem(newItem);
+                                    row.getItemProperty("Пользователь").setValue(name);
+                                }catch (NullPointerException ignored){}
+                            }
                         } else {
                             Notification.show("Ошибка удаления пользователя");
                         }

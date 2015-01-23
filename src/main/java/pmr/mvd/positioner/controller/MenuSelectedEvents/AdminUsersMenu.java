@@ -111,7 +111,7 @@ public class AdminUsersMenu implements MenuBar.Command{
 
         final CustomLayout custom = new CustomLayout("buttons");
 
-        Button addNewUser = new Button("Добавить", new AddUser());
+        Button addNewUser = new Button("Добавить", new AddUser(this));
 
         changePass.setEnabled(false);
         changeGroup.setEnabled(false);
