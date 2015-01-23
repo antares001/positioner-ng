@@ -20,6 +20,7 @@ public class AdminDevicesMenu implements MenuBar.Command{
     private SqlDao dao = new SqlDao();
 
     private Window window = new Window("Управление транспортными средствами");
+    private Table tabDevice = new Table("Транспортные средства");
 
     public Window getWindow(){
         return this.window;
@@ -27,6 +28,14 @@ public class AdminDevicesMenu implements MenuBar.Command{
 
     public void setWindow(Window arg){
         this.window = arg;
+    }
+
+    public Table getTabDevice(){
+        return this.tabDevice;
+    }
+
+    public void setTabDevice(Table arg){
+        this.tabDevice = arg;
     }
 
     @Override
@@ -40,7 +49,6 @@ public class AdminDevicesMenu implements MenuBar.Command{
 
         VerticalLayout verticalLayout = new VerticalLayout();
 
-        Table tabDevice = new Table("Транспортные средства");
         tabDevice.setSelectable(true);
 
         tabDevice.addContainerProperty("id",String.class, null);
@@ -69,7 +77,7 @@ public class AdminDevicesMenu implements MenuBar.Command{
 
         final CustomLayout custom = new CustomLayout("buttons");
 
-        final Button addNewDevice = new Button("Добавить", new AddDevice());
+        final Button addNewDevice = new Button("Добавить", new AddDevice(this));
 
         final Button devGroupButton = new Button("Пользователи", new Button.ClickListener() {
             @Override

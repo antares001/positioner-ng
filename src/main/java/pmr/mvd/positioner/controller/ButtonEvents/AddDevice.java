@@ -1,15 +1,24 @@
 package pmr.mvd.positioner.controller.ButtonEvents;
 
+import com.vaadin.data.Item;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
+import pmr.mvd.positioner.bean.Devices;
+import pmr.mvd.positioner.controller.MenuSelectedEvents.AdminDevicesMenu;
 import pmr.mvd.positioner.dao.SqlDao;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class AddDevice implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
     private Window window = new Window("Добавить");
+    private AdminDevicesMenu adminDevicesMenu;
+
+    public AddDevice(AdminDevicesMenu arg){
+        this.adminDevicesMenu = arg;
+    }
 
     public Window getWindow(){
         return this.window;
@@ -45,9 +54,26 @@ public class AddDevice implements Button.ClickListener{
                     HashMap<String,String> params = new HashMap<String,String>();
                     params.put("name", username.getValue());
                     params.put("id", idname.getValue());
-                    if (dao.ExecuteOperation(params, "add_new_device"))
+                    if (dao.ExecuteOperation(params, "add_new_device")) {
                         window.close();
-                    else
+                        Table table = adminDevicesMenu.getTabDevice();
+                        table.removeAllItems();
+
+                        ArrayList<Devices> devices = dao.GetDevices();
+                        for (Devices device : devices){
+                            try {
+                                String id = device.getId();
+                                String name = device.getName();
+                                String positions = device.getUniq();
+
+                                Object newItem = table.addItem();
+                                Item row = table.getItem(newItem);
+                                row.getItemProperty("id").setValue(id);
+                                row.getItemProperty("Имя").setValue(name);
+                                row.getItemProperty("Уникальный идентификатор").setValue(positions);
+                            }catch (NullPointerException ignored){}
+                        }
+                    } else
                         Notification.show("Ошибка добавления ТС");
                 }
             }
