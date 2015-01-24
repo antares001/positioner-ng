@@ -17,11 +17,14 @@ public class GroupListDevices implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
     private Window window = new Window("Список транспортных средств пользователя");
+    private Window winTSUser = new Window("Добавление транспортного средства для пользователя");
     private Button del = new Button("Удалить");
     private HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
     private String nameuser = hidden.pullUp("selected_user");
     private ArrayList<GroupDev> devGroup = dao.GetGroupUser(nameuser);
     private Table tabDevGroup = new Table("Транспортные средства");
+
+    private ComboBox comboBoxTsDev = new ComboBox();
 
     public Window getWindow(){
         return this.window;
@@ -61,78 +64,8 @@ public class GroupListDevices implements Button.ClickListener{
 
         CustomLayout customDevGroup = new CustomLayout("usergroup");
 
-        final Button add = new Button("Добавить", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                final Window winTSUser = new Window("Добавление транспортного средства для пользователя");
-                winTSUser.setModal(true);
-                winTSUser.setWidth(400.0f, Sizeable.Unit.PIXELS);
-                winTSUser.setHeight(200.0f, Sizeable.Unit.PIXELS);
-
-                FormLayout flTsUsers = new FormLayout();
-                CustomLayout clTsUsers = new CustomLayout("changegroup");
-
-                final ComboBox comboBoxTsDev = new ComboBox();
-                comboBoxTsDev.setWidth(200.0f, Sizeable.Unit.PIXELS);
-                comboBoxTsDev.setImmediate(true);
-                comboBoxTsDev.setNullSelectionAllowed(false);
-
-                final ArrayList<Devices> tsDevices = dao.GetDevices();
-                for(Devices ts : tsDevices){
-                    comboBoxTsDev.addItem(ts.getName());
-                }
-                clTsUsers.addComponent(comboBoxTsDev, "group");
-
-                final Button saveDevGroup = new Button("Добавить", new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent clickEvent) {
-                        try {
-                            String namedevice = comboBoxTsDev.getValue().toString();
-                            boolean newDevice = true;
-                            for (GroupDev gd : devGroup) {
-                                if (namedevice.equals(gd.getDevice()))
-                                    newDevice = false;
-                            }
-
-                            if (newDevice) {
-                                HashMap<String,String> params = new HashMap<String, String>();
-                                params.put("user", nameuser);
-                                params.put("device", namedevice);
-
-                                if (dao.ExecuteOperation(params, "add_group_user")) {
-                                    winTSUser.close();
-                                    tabDevGroup.removeAllItems();
-
-                                    for (GroupDev groupDev : devGroup){
-                                        try {
-                                            String name = groupDev.getDevice();
-
-                                            Object newItem = tabDevGroup.addItem();
-                                            Item row = tabDevGroup.getItem(newItem);
-                                            row.getItemProperty("Транспортное средство").setValue(name);
-                                        } catch (NullPointerException ignored){}
-                                    }
-                                } else
-                                    Notification.show("Ошибка добавления ТС");
-                            } else {
-                                Notification.show("Такое ТС уже есть");
-                            }
-                        } catch (NullPointerException e){
-                            Notification.show("Не выбрано ТС");
-                        }
-                    }
-                });
-                clTsUsers.addComponent(saveDevGroup, "save");
-
-                final Button closeDevGroup = new Button("Отмена", new CloseWindow(winTSUser));
-                clTsUsers.addComponent(closeDevGroup, "close");
-
-                flTsUsers.addComponent(clTsUsers);
-                winTSUser.setContent(flTsUsers);
-
-                UI.getCurrent().addWindow(winTSUser);
-            }
-        });
+        final Button add = new Button("Добавить");
+        add.addClickListener(new Add());
         customDevGroup.addComponent(add, "add");
 
         del.addClickListener(new Delete());
@@ -158,6 +91,40 @@ public class GroupListDevices implements Button.ClickListener{
         }
     }
 
+    private class Add implements Button.ClickListener{
+        @Override
+        public void buttonClick(Button.ClickEvent clickEvent) {
+            winTSUser.setModal(true);
+            winTSUser.setWidth(400.0f, Sizeable.Unit.PIXELS);
+            winTSUser.setHeight(200.0f, Sizeable.Unit.PIXELS);
+
+            FormLayout flTsUsers = new FormLayout();
+            CustomLayout clTsUsers = new CustomLayout("changegroup");
+
+            comboBoxTsDev.setWidth(200.0f, Sizeable.Unit.PIXELS);
+            comboBoxTsDev.setImmediate(true);
+            comboBoxTsDev.setNullSelectionAllowed(false);
+
+            final ArrayList<Devices> tsDevices = dao.GetDevices();
+            for(Devices ts : tsDevices){
+                comboBoxTsDev.addItem(ts.getName());
+            }
+            clTsUsers.addComponent(comboBoxTsDev, "group");
+
+            final Button saveDevGroup = new Button("Добавить");
+            saveDevGroup.addClickListener(new SaveDevGroup());
+            clTsUsers.addComponent(saveDevGroup, "save");
+
+            final Button closeDevGroup = new Button("Отмена", new CloseWindow(winTSUser));
+            clTsUsers.addComponent(closeDevGroup, "close");
+
+            flTsUsers.addComponent(clTsUsers);
+            winTSUser.setContent(flTsUsers);
+
+            UI.getCurrent().addWindow(winTSUser);
+        }
+    }
+
     private class Delete implements Button.ClickListener{
         @Override
         public void buttonClick(Button.ClickEvent clickEvent) {
@@ -178,10 +145,51 @@ public class GroupListDevices implements Button.ClickListener{
                         Object newItem = tabDevGroup.addItem();
                         Item row = tabDevGroup.getItem(newItem);
                         row.getItemProperty("Транспортное средство").setValue(name);
+                        del.setEnabled(false);
                     } catch (NullPointerException ignored){}
                 }
             } else {
                 Notification.show("Ошибка удаления транспортного средства");
+            }
+        }
+    }
+
+    private class SaveDevGroup implements Button.ClickListener{
+        @Override
+        public void buttonClick(Button.ClickEvent clickEvent) {
+            try {
+                String namedevice = comboBoxTsDev.getValue().toString();
+                boolean newDevice = true;
+                for (GroupDev gd : devGroup) {
+                    if (namedevice.equals(gd.getDevice()))
+                        newDevice = false;
+                }
+
+                if (newDevice) {
+                    HashMap<String,String> params = new HashMap<String, String>();
+                    params.put("user", nameuser);
+                    params.put("device", namedevice);
+
+                    if (dao.ExecuteOperation(params, "add_group_user")) {
+                        winTSUser.close();
+                        tabDevGroup.removeAllItems();
+
+                        for (GroupDev groupDev : devGroup){
+                            try {
+                                String name = groupDev.getDevice();
+
+                                Object newItem = tabDevGroup.addItem();
+                                Item row = tabDevGroup.getItem(newItem);
+                                row.getItemProperty("Транспортное средство").setValue(name);
+                            } catch (NullPointerException ignored){}
+                        }
+                    } else
+                        Notification.show("Ошибка добавления ТС");
+                } else {
+                    Notification.show("Такое ТС уже есть");
+                }
+            } catch (NullPointerException e){
+                Notification.show("Не выбрано ТС");
             }
         }
     }
