@@ -160,7 +160,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                         for (Object marker : points) {
                             googleMap.removeMarker((GoogleMapMarker) marker);
                         }
-                    } catch (Exception e){}
+                    } catch (Exception ignored){}
 
                     googleMap.addMarker(hidden.pullUp("device"), new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())), false, null);
 

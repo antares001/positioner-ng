@@ -24,6 +24,8 @@ public class AdminDevicesMenu implements MenuBar.Command{
     private HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
     private Button deleteDevice = new Button("Удалить");
     private Button devGroupButton = new Button("Пользователи");
+    private Button del = new Button("Удалить");
+    private Table tabDevGroup = new Table("Список пользователей");
 
     public Window getWindow(){
         return this.window;
@@ -122,9 +124,11 @@ public class AdminDevicesMenu implements MenuBar.Command{
                 HashMap<String,String> params = new HashMap<String, String>();
                 params.put("name", d.getName());
 
-                if (dao.ExecuteOperation(params, "del_device"))
+                if (dao.ExecuteOperation(params, "del_device")) {
                     Notification.show("Удалено транс. средство: " + d.getName() + "");
-                else
+                    deleteDevice.setEnabled(false);
+                    devGroupButton.setEnabled(false);
+                } else
                     Notification.show("Ошибка удаления ТС");
             } catch (Exception e){
                 Notification.show("ТС уже удалено");
@@ -144,7 +148,6 @@ public class AdminDevicesMenu implements MenuBar.Command{
 
             VerticalLayout vDev = new VerticalLayout();
 
-            final Table tabDevGroup = new Table("Список пользователей");
             tabDevGroup.setSelectable(true);
 
             tabDevGroup.setPageLength(5);
@@ -234,12 +237,7 @@ public class AdminDevicesMenu implements MenuBar.Command{
                     });
                     layout0.addComponent(saveGroupUser, "save");
 
-                    final Button closeGroupUser = new Button("Отмена", new Button.ClickListener() {
-                        @Override
-                        public void buttonClick(Button.ClickEvent clickEvent) {
-                            winAddGroupUser.close();
-                        }
-                    });
+                    final Button closeGroupUser = new Button("Отмена", new CloseWindow(winAddGroupUser));
                     layout0.addComponent(closeGroupUser, "close");
 
                     addGroupUserLayout.addComponent(layout0);
@@ -250,57 +248,60 @@ public class AdminDevicesMenu implements MenuBar.Command{
             });
             customDevGroup.addComponent(add, "add");
 
-            final Button del = new Button("Удалить", new Button.ClickListener() {
-                @Override
-                public void buttonClick(Button.ClickEvent clickEvent) {
-                    String uName = hidden.pullUp("delete_groupuser");
-                    String nmas = userGroup.get(Integer.parseInt(uName) - 1).getUser();
-
-                    HashMap<String,String> params = new HashMap<String, String>();
-                    params.put("user", nmas);
-                    params.put("device", namedevice);
-
-                    if (dao.ExecuteOperation(params, "del_group_dev")){
-                        tabDevGroup.removeAllItems();
-
-                        final ArrayList<GroupDev> userGroup = dao.GetGroupDev(namedevice);
-                        for (GroupDev groupDev : userGroup){
-                            try{
-                                String name = groupDev.getUser();
-
-                                Object newItem = tabDevGroup.addItem();
-                                Item row = tabDevGroup.getItem(newItem);
-                                row.getItemProperty("Пользователь").setValue(name);
-                            }catch (NullPointerException ignored){}
-                        }
-                    } else {
-                        Notification.show("Ошибка удаления пользователя");
-                    }
-                }
-            });
+            del.addClickListener(new Del());
             del.setEnabled(false);
             customDevGroup.addComponent(del, "delete");
 
-            tabDevGroup.addValueChangeListener(new Property.ValueChangeListener() {
-                @Override
-                public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-                    del.setEnabled(true);
-                    hidden.pullDown("delete_groupuser", String.valueOf(valueChangeEvent.getProperty().getValue()));
-                }
-            });
+            tabDevGroup.addValueChangeListener(new UsersTableListener());
 
-            final Button close = new Button("Закрыть", new Button.ClickListener() {
-                @Override
-                public void buttonClick(Button.ClickEvent clickEvent) {
-                    winChangeDev.close();
-                }
-            });
+            final Button close = new Button("Закрыть", new CloseWindow(winChangeDev));
             customDevGroup.addComponent(close, "exit");
             vDev.addComponent(customDevGroup);
 
             chDevLayaout.addComponent(vDev);
             winChangeDev.setContent(chDevLayaout);
             UI.getCurrent().addWindow(winChangeDev);
+        }
+    }
+
+    private class UsersTableListener implements Property.ValueChangeListener{
+        @Override
+        public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+            del.setEnabled(true);
+            hidden.pullDown("delete_groupuser", String.valueOf(valueChangeEvent.getProperty().getValue()));
+        }
+    }
+
+    private class Del implements Button.ClickListener{
+        @Override
+        public void buttonClick(Button.ClickEvent clickEvent) {
+            ArrayList<Devices> devices = dao.GetDevices();
+            Devices d = devices.get(Integer.parseInt(hidden.pullUp("delete_device")) - 1);
+            final String namedevice = d.getName();
+
+            final ArrayList<GroupDev> userGroup = dao.GetGroupDev(namedevice);
+
+            String uName = hidden.pullUp("delete_groupuser");
+            String nmas = userGroup.get(Integer.parseInt(uName) - 1).getUser();
+
+            HashMap<String,String> params = new HashMap<String, String>();
+            params.put("user", nmas);
+            params.put("device", namedevice);
+
+            if (dao.ExecuteOperation(params, "del_group_dev")){
+                tabDevGroup.removeAllItems();
+                for (GroupDev groupDev : dao.GetGroupDev(namedevice)){
+                    try{
+                        String name = groupDev.getUser();
+
+                        Object newItem = tabDevGroup.addItem();
+                        Item row = tabDevGroup.getItem(newItem);
+                        row.getItemProperty("Пользователь").setValue(name);
+                    }catch (NullPointerException ignored){}
+                }
+            } else {
+                Notification.show("Ошибка удаления пользователя");
+            }
         }
     }
 }
