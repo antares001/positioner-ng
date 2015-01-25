@@ -7,6 +7,8 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.bean.Devices;
 import pmr.mvd.positioner.bean.GroupDev;
+import pmr.mvd.positioner.controller.MenuSelectedEvents.AdminDevicesMenu;
+import pmr.mvd.positioner.controller.TableChangeListener.DevTableListener;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
@@ -17,14 +19,8 @@ public class GroupListDevices implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
     private Window window = new Window("Список транспортных средств пользователя");
-    private Window winTSUser = new Window("Добавление транспортного средства для пользователя");
-    private Button del = new Button("Удалить");
-    private HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
-    private String nameuser = hidden.pullUp("selected_user");
-    private ArrayList<GroupDev> devGroup = dao.GetGroupUser(nameuser);
-    private Table tabDevGroup = new Table("Транспортные средства");
-
-    private ComboBox comboBoxTsDev = new ComboBox();
+    private Button del;
+    private Table tabDevGroup;
 
     public Window getWindow(){
         return this.window;
@@ -34,6 +30,26 @@ public class GroupListDevices implements Button.ClickListener{
         this.window = arg;
     }
 
+    public Table getTabDevGroup(){
+        return this.tabDevGroup;
+    }
+
+    public void setTabDevGroup(Table arg){
+        this.tabDevGroup = arg;
+    }
+
+    public Button getDel(){
+        return this.del;
+    }
+
+    public void setDel(Button arg){
+        this.del = arg;
+    }
+
+    /**
+     * Оработка нажатия кнопки Администрирование->Пользователи->ТС
+     * @param clickEvent событие
+     */
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
         window.setWidth(600.0f, Sizeable.Unit.PIXELS);
@@ -44,12 +60,17 @@ public class GroupListDevices implements Button.ClickListener{
 
         VerticalLayout vDev = new VerticalLayout();
 
+        setTabDevGroup(new Table("Транспортные средства"));
         tabDevGroup.setSelectable(true);
 
         tabDevGroup.setPageLength(5);
         tabDevGroup.setWidth(550.0f, Sizeable.Unit.PIXELS);
 
         tabDevGroup.addContainerProperty("Транспортное средство", String.class, null);
+
+        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
+        String nameuser = hidden.pullUp("selected_user");
+        ArrayList<GroupDev> devGroup = dao.GetGroupUser(nameuser);
         for (GroupDev groupDev : devGroup){
             try {
                 String name = groupDev.getDevice();
@@ -65,14 +86,15 @@ public class GroupListDevices implements Button.ClickListener{
         CustomLayout customDevGroup = new CustomLayout("usergroup");
 
         final Button add = new Button("Добавить");
-        add.addClickListener(new Add());
+        add.addClickListener(new AddGroupListDevices(this));
         customDevGroup.addComponent(add, "add");
 
-        del.addClickListener(new Delete());
+        setDel(new Button("Удалить"));
+        del.addClickListener(new DelGroupListDevices(this));
         del.setEnabled(false);
         customDevGroup.addComponent(del, "delete");
 
-        tabDevGroup.addValueChangeListener(new DevTableListener());
+        tabDevGroup.addValueChangeListener(new DevTableListener(this));
 
         final Button close = new Button("Закрыть", new CloseWindow(window));
         customDevGroup.addComponent(close, "exit");
@@ -81,116 +103,5 @@ public class GroupListDevices implements Button.ClickListener{
         chDevLayaout.addComponent(vDev);
         window.setContent(chDevLayaout);
         UI.getCurrent().addWindow(window);
-    }
-
-    private class DevTableListener implements Property.ValueChangeListener{
-        @Override
-        public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-            del.setEnabled(true);
-            hidden.pullDown("delete_groupdevice", String.valueOf(valueChangeEvent.getProperty().getValue()));
-        }
-    }
-
-    private class Add implements Button.ClickListener{
-        @Override
-        public void buttonClick(Button.ClickEvent clickEvent) {
-            winTSUser.setModal(true);
-            winTSUser.setWidth(400.0f, Sizeable.Unit.PIXELS);
-            winTSUser.setHeight(200.0f, Sizeable.Unit.PIXELS);
-
-            FormLayout flTsUsers = new FormLayout();
-            CustomLayout clTsUsers = new CustomLayout("changegroup");
-
-            comboBoxTsDev.setWidth(200.0f, Sizeable.Unit.PIXELS);
-            comboBoxTsDev.setImmediate(true);
-            comboBoxTsDev.setNullSelectionAllowed(false);
-
-            final ArrayList<Devices> tsDevices = dao.GetDevices();
-            for(Devices ts : tsDevices){
-                comboBoxTsDev.addItem(ts.getName());
-            }
-            clTsUsers.addComponent(comboBoxTsDev, "group");
-
-            final Button saveDevGroup = new Button("Добавить");
-            saveDevGroup.addClickListener(new SaveDevGroup());
-            clTsUsers.addComponent(saveDevGroup, "save");
-
-            final Button closeDevGroup = new Button("Отмена", new CloseWindow(winTSUser));
-            clTsUsers.addComponent(closeDevGroup, "close");
-
-            flTsUsers.addComponent(clTsUsers);
-            winTSUser.setContent(flTsUsers);
-
-            UI.getCurrent().addWindow(winTSUser);
-        }
-    }
-
-    private class Delete implements Button.ClickListener{
-        @Override
-        public void buttonClick(Button.ClickEvent clickEvent) {
-            String mDev = hidden.pullUp("delete_groupdevice");
-            String nn = devGroup.get(Integer.parseInt(mDev) - 1).getDevice();
-
-            HashMap<String,String> params = new HashMap<String, String>();
-            params.put("user", nameuser);
-            params.put("device", nn);
-
-            if (dao.ExecuteOperation(params, "del_group_dev")){
-                window.close();
-
-                for (GroupDev groupDev : devGroup){
-                    try {
-                        String name = groupDev.getDevice();
-
-                        Object newItem = tabDevGroup.addItem();
-                        Item row = tabDevGroup.getItem(newItem);
-                        row.getItemProperty("Транспортное средство").setValue(name);
-                        del.setEnabled(false);
-                    } catch (NullPointerException ignored){}
-                }
-            } else {
-                Notification.show("Ошибка удаления транспортного средства");
-            }
-        }
-    }
-
-    private class SaveDevGroup implements Button.ClickListener{
-        @Override
-        public void buttonClick(Button.ClickEvent clickEvent) {
-            try {
-                String namedevice = comboBoxTsDev.getValue().toString();
-                boolean newDevice = true;
-                for (GroupDev gd : devGroup) {
-                    if (namedevice.equals(gd.getDevice()))
-                        newDevice = false;
-                }
-
-                if (newDevice) {
-                    HashMap<String,String> params = new HashMap<String, String>();
-                    params.put("user", nameuser);
-                    params.put("device", namedevice);
-
-                    if (dao.ExecuteOperation(params, "add_group_user")) {
-                        winTSUser.close();
-                        tabDevGroup.removeAllItems();
-
-                        for (GroupDev groupDev : devGroup){
-                            try {
-                                String name = groupDev.getDevice();
-
-                                Object newItem = tabDevGroup.addItem();
-                                Item row = tabDevGroup.getItem(newItem);
-                                row.getItemProperty("Транспортное средство").setValue(name);
-                            } catch (NullPointerException ignored){}
-                        }
-                    } else
-                        Notification.show("Ошибка добавления ТС");
-                } else {
-                    Notification.show("Такое ТС уже есть");
-                }
-            } catch (NullPointerException e){
-                Notification.show("Не выбрано ТС");
-            }
-        }
     }
 }

@@ -10,6 +10,7 @@ import pmr.mvd.positioner.bean.GroupDev;
 import pmr.mvd.positioner.bean.UserSettings;
 import pmr.mvd.positioner.controller.ButtonEvents.AddDevice;
 import pmr.mvd.positioner.controller.ButtonEvents.CloseWindow;
+import pmr.mvd.positioner.controller.TableChangeListener.DeviceTableListener;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
@@ -19,13 +20,15 @@ import java.util.HashMap;
 public class AdminDevicesMenu implements MenuBar.Command{
     private SqlDao dao = new SqlDao();
 
-    private Window window = new Window("Управление транспортными средствами");
+    private Window window;
+    private Window winAddGroupUser = new Window("Новый пользователь");
     private Table tabDevice = new Table("Транспортные средства");
     private HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
-    private Button deleteDevice = new Button("Удалить");
-    private Button devGroupButton = new Button("Пользователи");
+    private Button deleteDevice;
+    private Button devGroupButton;
     private Button del = new Button("Удалить");
     private Table tabDevGroup = new Table("Список пользователей");
+    private ComboBox comboBoxUsers = new ComboBox();
 
     public Window getWindow(){
         return this.window;
@@ -43,8 +46,25 @@ public class AdminDevicesMenu implements MenuBar.Command{
         this.tabDevice = arg;
     }
 
+    public Button getDeleteDevice(){
+        return this.deleteDevice;
+    }
+
+    public void setDeleteDevice(Button arg){
+        this.deleteDevice = arg;
+    }
+
+    public Button getDevGroupButton(){
+        return this.devGroupButton;
+    }
+
+    public void setDevGroupButton(Button arg){
+        this.devGroupButton = arg;
+    }
+
     @Override
     public void menuSelected(MenuBar.MenuItem menuItem) {
+        setWindow(new Window("Управление транспортными средствами"));
         window.setWidth(600.0f, Sizeable.Unit.PIXELS);
         window.setHeight(400.0f, Sizeable.Unit.PIXELS);
         window.setModal(true);
@@ -82,13 +102,15 @@ public class AdminDevicesMenu implements MenuBar.Command{
 
         final Button addNewDevice = new Button("Добавить", new AddDevice(this));
 
+        setDevGroupButton(new Button("Пользователи"));
         devGroupButton.addClickListener(new DevGroup());
         devGroupButton.setEnabled(false);
 
+        setDeleteDevice(new Button("Удалить"));
         deleteDevice.addClickListener(new DeleteDevice());
         deleteDevice.setEnabled(false);
 
-        tabDevice.addValueChangeListener(new DeviceTableListener());
+        tabDevice.addValueChangeListener(new DeviceTableListener(this));
 
         Button exit = new Button("Закрыть", new CloseWindow(window));
 
@@ -103,15 +125,6 @@ public class AdminDevicesMenu implements MenuBar.Command{
 
         window.setContent(formLayout);
         UI.getCurrent().addWindow(window);
-    }
-
-    private class DeviceTableListener implements Property.ValueChangeListener{
-        @Override
-        public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-            deleteDevice.setEnabled(true);
-            devGroupButton.setEnabled(true);
-            hidden.pullDown("delete_device", String.valueOf(valueChangeEvent.getProperty().getValue()));
-        }
     }
 
     private class DeleteDevice implements Button.ClickListener{
@@ -174,78 +187,8 @@ public class AdminDevicesMenu implements MenuBar.Command{
 
             CustomLayout customDevGroup = new CustomLayout("usergroup");
 
-            final Button add = new Button("Добавить", new Button.ClickListener() {
-                @Override
-                public void buttonClick(Button.ClickEvent clickEvent) {
-                    final Window winAddGroupUser = new Window("Новый пользователь");
-                    winAddGroupUser.setModal(true);
-                    winAddGroupUser.setWidth(400.0f, Sizeable.Unit.PIXELS);
-                    winAddGroupUser.setHeight(200.0f, Sizeable.Unit.PIXELS);
-
-                    FormLayout addGroupUserLayout = new FormLayout();
-                    CustomLayout layout0 = new CustomLayout("changegroup");
-
-                    final ComboBox comboBoxUsers = new ComboBox();
-                    comboBoxUsers.setWidth(200.0f, Sizeable.Unit.PIXELS);
-                    comboBoxUsers.setImmediate(true);
-                    comboBoxUsers.setNullSelectionAllowed(false);
-
-                    final ArrayList<UserSettings> listUsers = dao.GetUsers();
-                    for (UserSettings us : listUsers){
-                        comboBoxUsers.addItem(us.getUsername());
-                    }
-                    layout0.addComponent(comboBoxUsers, "group");
-
-                    final Button saveGroupUser = new Button("Добавить", new Button.ClickListener() {
-                        @Override
-                        public void buttonClick(Button.ClickEvent clickEvent) {
-                            try{
-                                String nameuser = comboBoxUsers.getValue().toString();
-                                boolean newUser = true;
-                                for(GroupDev settingsUser : userGroup){
-                                    if (nameuser.equals(settingsUser.getUser()))
-                                        newUser = false;
-                                }
-                                if (newUser) {
-                                    HashMap<String,String> params = new HashMap<String, String>();
-                                    params.put("user", nameuser);
-                                    params.put("device", namedevice);
-
-                                    if (dao.ExecuteOperation(params, "add_group_user")) {
-                                        winAddGroupUser.close();
-
-                                        tabDevGroup.removeAllItems();
-
-                                        final ArrayList<GroupDev> userGroup = dao.GetGroupDev(namedevice);
-                                        for (GroupDev groupDev : userGroup){
-                                            try{
-                                                String name = groupDev.getUser();
-
-                                                Object newItem = tabDevGroup.addItem();
-                                                Item row = tabDevGroup.getItem(newItem);
-                                                row.getItemProperty("Пользователь").setValue(name);
-                                            }catch (NullPointerException ignored){}
-                                        }
-                                    }else
-                                        Notification.show("Ошибка добавления пользователя");
-                                } else
-                                    Notification.show("Такой пользователь уже есть");
-                            } catch (NullPointerException e){
-                                Notification.show("Не выбран пользователь");
-                            }
-                        }
-                    });
-                    layout0.addComponent(saveGroupUser, "save");
-
-                    final Button closeGroupUser = new Button("Отмена", new CloseWindow(winAddGroupUser));
-                    layout0.addComponent(closeGroupUser, "close");
-
-                    addGroupUserLayout.addComponent(layout0);
-
-                    winAddGroupUser.setContent(addGroupUserLayout);
-                    UI.getCurrent().addWindow(winAddGroupUser);
-                }
-            });
+            final Button add = new Button("Добавить");
+            add.addClickListener(new Add());
             customDevGroup.addComponent(add, "add");
 
             del.addClickListener(new Del());
@@ -301,6 +244,84 @@ public class AdminDevicesMenu implements MenuBar.Command{
                 }
             } else {
                 Notification.show("Ошибка удаления пользователя");
+            }
+        }
+    }
+
+    public class Add implements Button.ClickListener{
+        @Override
+        public void buttonClick(Button.ClickEvent clickEvent) {
+            winAddGroupUser.setModal(true);
+            winAddGroupUser.setWidth(400.0f, Sizeable.Unit.PIXELS);
+            winAddGroupUser.setHeight(200.0f, Sizeable.Unit.PIXELS);
+
+            FormLayout addGroupUserLayout = new FormLayout();
+            CustomLayout layout0 = new CustomLayout("changegroup");
+
+            comboBoxUsers.setWidth(200.0f, Sizeable.Unit.PIXELS);
+            comboBoxUsers.setImmediate(true);
+            comboBoxUsers.setNullSelectionAllowed(false);
+
+            final ArrayList<UserSettings> listUsers = dao.GetUsers();
+            for (UserSettings us : listUsers){
+                comboBoxUsers.addItem(us.getUsername());
+            }
+            layout0.addComponent(comboBoxUsers, "group");
+
+            final Button saveGroupUser = new Button("Добавить");
+            saveGroupUser.addClickListener(new SaveGroupUser());
+            layout0.addComponent(saveGroupUser, "save");
+
+            final Button closeGroupUser = new Button("Отмена", new CloseWindow(winAddGroupUser));
+            layout0.addComponent(closeGroupUser, "close");
+
+            addGroupUserLayout.addComponent(layout0);
+
+            winAddGroupUser.setContent(addGroupUserLayout);
+            UI.getCurrent().addWindow(winAddGroupUser);
+        }
+    }
+
+    public class SaveGroupUser implements Button.ClickListener{
+        @Override
+        public void buttonClick(Button.ClickEvent clickEvent) {
+            ArrayList<Devices> devices = dao.GetDevices();
+            Devices d = devices.get(Integer.parseInt(hidden.pullUp("delete_device")) - 1);
+            final String namedevice = d.getName();
+
+            ArrayList<GroupDev> userGroup = dao.GetGroupDev(namedevice);
+            try{
+                String nameuser = comboBoxUsers.getValue().toString();
+                boolean newUser = true;
+                for(GroupDev settingsUser : userGroup){
+                    if (nameuser.equals(settingsUser.getUser()))
+                        newUser = false;
+                }
+                if (newUser) {
+                    HashMap<String,String> params = new HashMap<String, String>();
+                    params.put("user", nameuser);
+                    params.put("device", namedevice);
+
+                    if (dao.ExecuteOperation(params, "add_group_user")) {
+                        winAddGroupUser.close();
+
+                        tabDevGroup.removeAllItems();
+                        userGroup = dao.GetGroupDev(namedevice);
+                        for (GroupDev groupDev : userGroup){
+                            try{
+                                String name = groupDev.getUser();
+
+                                Object newItem = tabDevGroup.addItem();
+                                Item row = tabDevGroup.getItem(newItem);
+                                row.getItemProperty("Пользователь").setValue(name);
+                            }catch (NullPointerException ignored){}
+                        }
+                    }else
+                        Notification.show("Ошибка добавления пользователя");
+                } else
+                    Notification.show("Такой пользователь уже есть");
+            } catch (NullPointerException e){
+                Notification.show("Не выбран пользователь");
             }
         }
     }
