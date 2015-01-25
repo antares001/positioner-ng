@@ -9,13 +9,20 @@ import pmr.mvd.positioner.utils.HiddenVariable;
 import java.util.HashMap;
 
 public class DeleteUserConfirm implements Button.ClickListener {
-    private SqlDao dao = new SqlDao();
+    private Window window;
 
-    private HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
-    private Window window = new Window("Удаление пользователя " + hidden.pullUp("selected_user"));
+    public Window getWindow(){
+        return this.window;
+    }
+
+    public void setWindow(Window arg){
+        this.window = arg;
+    }
 
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
+        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
+        setWindow(new Window("Удаление пользователя " + hidden.pullUp("selected_user")));
         window.setWidth(400.0f, Sizeable.Unit.PIXELS);
         window.setHeight(200.0f, Sizeable.Unit.PIXELS);
         window.setModal(true);
@@ -24,7 +31,7 @@ public class DeleteUserConfirm implements Button.ClickListener {
         CustomLayout delCustom = new CustomLayout("delete");
 
         final Button delConfirm = new Button("Удалить");
-        delConfirm.addClickListener(new Del());
+        delConfirm.addClickListener(new DeleteUserConfirmDel(this));
         delCustom.addComponent(delConfirm, "delete");
 
         final Button delClose = new Button("Отмена", new CloseWindow(window));
@@ -33,18 +40,5 @@ public class DeleteUserConfirm implements Button.ClickListener {
         delLayout.addComponent(delCustom);
         window.setContent(delLayout);
         UI.getCurrent().addWindow(window);
-    }
-
-    private class Del implements Button.ClickListener{
-        @Override
-        public void buttonClick(Button.ClickEvent clickEvent) {
-            HashMap<String,String> params = new HashMap<String, String>();
-            params.put("user", hidden.pullUp("selected_user"));
-
-            if (dao.ExecuteOperation(params, "delete_user")) {
-                window.close();
-            } else
-                Notification.show("Ошибка удаления пользователя");
-        }
     }
 }
