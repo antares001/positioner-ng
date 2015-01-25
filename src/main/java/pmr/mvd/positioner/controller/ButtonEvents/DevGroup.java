@@ -57,6 +57,8 @@ public class DevGroup implements Button.ClickListener{
 
         VerticalLayout vDev = new VerticalLayout();
 
+        setTable(new Table("Список пользователей"));
+        table.addValueChangeListener(new UserTableListener(this));
         table.setSelectable(true);
 
         table.setPageLength(5);
@@ -92,9 +94,6 @@ public class DevGroup implements Button.ClickListener{
         del.addClickListener(new DelDevGroup(this));
         del.setEnabled(false);
         customDevGroup.addComponent(del, "delete");
-
-        setTable(new Table("Список пользователей"));
-        table.addValueChangeListener(new UserTableListener(this));
 
         final Button close = new Button("Закрыть", new CloseWindow(window));
         customDevGroup.addComponent(close, "exit");

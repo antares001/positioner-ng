@@ -21,6 +21,10 @@ public class DelDevGroup implements Button.ClickListener{
         this.devGroup = arg;
     }
 
+    /**
+     * Обработка кнопки Администрирование->Транс.ср-ва->Управление->Пользователи->Удаление
+     * @param clickEvent событие
+     */
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
         HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
@@ -50,6 +54,7 @@ public class DelDevGroup implements Button.ClickListener{
                     row.getItemProperty("Пользователь").setValue(name);
                 }catch (NullPointerException ignored){}
             }
+            devGroup.getDel().setEnabled(false);
         } else {
             Notification.show("Ошибка удаления пользователя");
         }
