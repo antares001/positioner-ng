@@ -1,23 +1,15 @@
 package pmr.mvd.positioner.controller.ButtonEvents;
 
-import com.vaadin.data.Item;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
-import pmr.mvd.positioner.bean.UserSettings;
 import pmr.mvd.positioner.controller.MenuSelectedEvents.AdminUsersMenu;
-import pmr.mvd.positioner.dao.SqlDao;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class AddUser implements Button.ClickListener{
-    private SqlDao dao = new SqlDao();
-
-    private Window window = new Window("Добавить");
-    private TextField userName = new TextField();
-    private PasswordField passWord = new PasswordField();
-    private PasswordField repeatPass = new PasswordField();
-    private ComboBox comboBox = new ComboBox();
+    private Window window;
+    private TextField userName;
+    private PasswordField passWord;
+    private PasswordField repeatPass;
+    private ComboBox comboBox;
     private AdminUsersMenu adminUsersMenu;
 
     public AddUser(AdminUsersMenu arg) {
@@ -32,8 +24,41 @@ public class AddUser implements Button.ClickListener{
         this.window = arg;
     }
 
+    public ComboBox getComboBox(){
+        return this.comboBox;
+    }
+
+    public void setComboBox(ComboBox arg){
+        this.comboBox = arg;
+    }
+
+    public TextField getUserName(){
+        return this.userName;
+    }
+
+    public void setUserName(TextField arg){
+        this.userName = arg;
+    }
+
+    public PasswordField getPassWord(){
+        return this.passWord;
+    }
+
+    public void setPassWord(PasswordField arg){
+        this.passWord = arg;
+    }
+
+    public PasswordField getRepeatPass(){
+        return this.repeatPass;
+    }
+
+    public void setRepeatPass(PasswordField arg){
+        this.repeatPass = arg;
+    }
+
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
+        setWindow(new Window("Добавить"));
         window.setWidth(500.0f, Sizeable.Unit.PIXELS);
         window.setHeight(300.0f, Sizeable.Unit.PIXELS);
         window.setModal(true);
@@ -41,10 +66,14 @@ public class AddUser implements Button.ClickListener{
         final FormLayout formLayout = new FormLayout();
         final CustomLayout customLayout = new CustomLayout("adduser");
 
+        setUserName(new TextField());
+        setPassWord(new PasswordField());
+        setRepeatPass(new PasswordField());
         customLayout.addComponent(userName, "name");
         customLayout.addComponent(passWord, "password");
         customLayout.addComponent(repeatPass, "repeat");
 
+        setComboBox(new ComboBox());
         comboBox.setImmediate(true);
         comboBox.setNullSelectionAllowed(false);
 
@@ -53,7 +82,7 @@ public class AddUser implements Button.ClickListener{
         customLayout.addComponent(comboBox, "group");
 
         final Button addNewUser = new Button("Добавить");
-        addNewUser.addClickListener(new AddNewDevice());
+        addNewUser.addClickListener(new AddNewUser(this, adminUsersMenu));
         customLayout.addComponent(addNewUser, "addbutton");
 
         final Button closeNewUser = new Button("Отмена", new CloseWindow(window));
@@ -62,66 +91,5 @@ public class AddUser implements Button.ClickListener{
         formLayout.addComponent(customLayout);
         window.setContent(formLayout);
         UI.getCurrent().addWindow(window);
-    }
-
-    private class AddNewDevice implements Button.ClickListener{
-        @Override
-        public void buttonClick(Button.ClickEvent clickEvent) {
-            if (userName.getValue().equals(""))
-                Notification.show("Введите имя пользователя");
-            else if (passWord.getValue().equals(""))
-                Notification.show("Введите пароль");
-            else if (repeatPass.getValue().equals(""))
-                Notification.show("Повторите пароль");
-            else if (!passWord.getValue().equals(repeatPass.getValue()))
-                Notification.show("Пароли не совпадают");
-            else {
-                boolean existsUser = true;
-                final ArrayList<UserSettings> users = dao.GetUsers();
-                for (UserSettings user : users) {
-                    if (user.getUsername().equals(userName.getValue()))
-                        existsUser = false;
-                }
-
-                if (existsUser) {
-                    final String value = comboBox.getValue().toString();
-
-                    String group = "";
-                    if (value.equals("Администратор"))
-                        group = "1";
-                    else if (value.equals("Пользователь"))
-                        group = "0";
-
-                    HashMap<String,String> params = new HashMap<String, String>();
-                    params.put("role", group);
-                    params.put("value", userName.getValue());
-                    params.put("value1", passWord.getValue());
-
-                    if (dao.ExecuteOperation(params, "add_new_user")){
-                        window.close();
-
-                        Table table = adminUsersMenu.getTabUsers();
-                        table.removeAllItems();
-
-                        ArrayList<UserSettings> usersNew = dao.GetUsers();
-                        for(UserSettings settings : usersNew){
-                            String groups = settings.getGroup();
-                            if (groups.equals("1"))
-                                groups = "Администратор";
-                            else if (group.equals("0"))
-                                groups = "Пользователь";
-
-                            Object newItem = table.addItem();
-                            Item row = table.getItem(newItem);
-                            row.getItemProperty("Логин").setValue(settings.getUsername());
-                            row.getItemProperty("Группа").setValue(groups);
-                        }
-                    } else {
-                        Notification.show("Ошибка добавления пользователя");
-                    }
-                } else
-                    Notification.show("Пользователь существует");
-            }
-        }
     }
 }

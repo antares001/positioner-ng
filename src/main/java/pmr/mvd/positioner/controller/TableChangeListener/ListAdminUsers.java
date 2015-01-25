@@ -5,12 +5,14 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Button;
 import pmr.mvd.positioner.bean.UserSettings;
 import pmr.mvd.positioner.controller.MenuSelectedEvents.AdminUsersMenu;
+import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
 import java.util.ArrayList;
 
 public class ListAdminUsers implements Property.ValueChangeListener{
     private AdminUsersMenu adminUsersMenu;
+    private SqlDao dao = new SqlDao();
 
     public ListAdminUsers(AdminUsersMenu arg){
         this.adminUsersMenu = arg;
@@ -22,7 +24,7 @@ public class ListAdminUsers implements Property.ValueChangeListener{
         Button changeGroup = adminUsersMenu.getChangeGroup();
         Button changeDev = adminUsersMenu.getChangeDev();
         Button delete = adminUsersMenu.getDelete();
-        ArrayList<UserSettings> users = adminUsersMenu.getUsers();
+        ArrayList<UserSettings> users = dao.GetUsers();
 
         changePass.setEnabled(true);
         changeGroup.setEnabled(true);

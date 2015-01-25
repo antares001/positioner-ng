@@ -13,14 +13,14 @@ import java.util.ArrayList;
 
 public class AdminUsersMenu implements MenuBar.Command{
     private SqlDao dao = new SqlDao();
-    private Table tabUsers = new Table("Пользователи");
-    private Window window = new Window("Управление пользователями");
+    private Table tabUsers;
+    private Window window;
 
-    private Button changePass = new Button("Сменить пароль", new ChangePassword());
-    private Button changeGroup = new Button("Сменить группу", new ChangeGroup());
-    private Button changeDev = new Button("ТС", new GroupListDevices());
-    private Button delete = new Button("Удалить", new DeleteUserConfirm());
-    private ArrayList<UserSettings> users = dao.GetUsers();
+    private Button changePass;
+    private Button changeGroup;
+    private Button changeDev;
+    private Button delete;
+
 
     public Table getTabUsers(){
         return this.tabUsers;
@@ -70,27 +70,22 @@ public class AdminUsersMenu implements MenuBar.Command{
         this.delete = arg;
     }
 
-    public ArrayList<UserSettings> getUsers(){
-        return this.users;
-    }
-
-    public void setUsers(ArrayList<UserSettings> arg){
-        this.users = arg;
-    }
-
     @Override
     public void menuSelected(MenuBar.MenuItem menuItem) {
+        setWindowAddUser(new Window("Управление пользователями"));
         window.setWidth(850.0f, Sizeable.Unit.PIXELS);
         window.setHeight(400.0f, Sizeable.Unit.PIXELS);
         window.setModal(true);
         final FormLayout formLayout = new FormLayout();
 
         VerticalLayout vertical = new VerticalLayout();
+        setTabUsers(new Table("Пользователи"));
         tabUsers.setSelectable(true);
 
         tabUsers.addContainerProperty("Логин", String.class, null);
         tabUsers.addContainerProperty("Группа", String.class, null);
 
+        ArrayList<UserSettings> users = dao.GetUsers();
         for(UserSettings settings : users){
             String group = settings.getGroup();
             if (group.equals("1"))
@@ -113,9 +108,16 @@ public class AdminUsersMenu implements MenuBar.Command{
 
         Button addNewUser = new Button("Добавить", new AddUser(this));
 
+        setChangePass(new Button("Сменить пароль", new ChangePassword()));
         changePass.setEnabled(false);
+
+        setChangeGroup(new Button("Сменить группу", new ChangeGroup()));
         changeGroup.setEnabled(false);
+
+        setChangeDev(new Button("ТС", new GroupListDevices()));
         changeDev.setEnabled(false);
+
+        setDelete(new Button("Удалить", new DeleteUserConfirm()));
         delete.setEnabled(false);
 
         tabUsers.addValueChangeListener(new ListAdminUsers(this));
