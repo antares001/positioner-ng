@@ -18,7 +18,7 @@ import java.util.HashMap;
 public class GroupListDevices implements Button.ClickListener{
     private SqlDao dao = new SqlDao();
 
-    private Window window = new Window("Список транспортных средств пользователя");
+    private Window window;
     private Button del;
     private Table tabDevGroup;
 
@@ -52,6 +52,7 @@ public class GroupListDevices implements Button.ClickListener{
      */
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
+        setWindow(new Window("Список транспортных средств пользователя"));
         window.setWidth(600.0f, Sizeable.Unit.PIXELS);
         window.setHeight(400.0f, Sizeable.Unit.PIXELS);
         window.setModal(true);
