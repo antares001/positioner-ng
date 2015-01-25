@@ -2,7 +2,6 @@ package pmr.mvd.positioner.controller.MenuSelectedEvents;
 
 import com.vaadin.data.Item;
 import com.vaadin.server.Sizeable;
-import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.bean.Devices;
 import pmr.mvd.positioner.controller.ButtonEvents.AddDevice;
@@ -11,7 +10,6 @@ import pmr.mvd.positioner.controller.ButtonEvents.DeleteDevice;
 import pmr.mvd.positioner.controller.ButtonEvents.DevGroup;
 import pmr.mvd.positioner.controller.TableChangeListener.DeviceTableListener;
 import pmr.mvd.positioner.dao.SqlDao;
-import pmr.mvd.positioner.utils.HiddenVariable;
 
 import java.util.ArrayList;
 
@@ -19,11 +17,9 @@ public class AdminDevicesMenu implements MenuBar.Command{
     private SqlDao dao = new SqlDao();
 
     private Window window;
-    private Table tabDevice = new Table("Транспортные средства");
-    private HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
+    private Table tabDevice;
     private Button deleteDevice;
     private Button devGroupButton;
-    private Table tabDevGroup;
 
     public Window getWindow(){
         return this.window;
@@ -67,6 +63,7 @@ public class AdminDevicesMenu implements MenuBar.Command{
 
         VerticalLayout verticalLayout = new VerticalLayout();
 
+        setTabDevice(new Table("Транспортные средства"));
         tabDevice.setSelectable(true);
 
         tabDevice.addContainerProperty("id",String.class, null);
@@ -98,7 +95,7 @@ public class AdminDevicesMenu implements MenuBar.Command{
         final Button addNewDevice = new Button("Добавить", new AddDevice(this));
 
         setDevGroupButton(new Button("Пользователи"));
-        devGroupButton.addClickListener(new DevGroup(this));
+        devGroupButton.addClickListener(new DevGroup());
         devGroupButton.setEnabled(false);
 
         setDeleteDevice(new Button("Удалить"));
