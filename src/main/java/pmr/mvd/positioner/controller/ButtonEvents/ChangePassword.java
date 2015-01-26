@@ -3,10 +3,7 @@ package pmr.mvd.positioner.controller.ButtonEvents;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.*;
-import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
-
-import java.util.HashMap;
 
 public class ChangePassword implements Button.ClickListener{
     private PasswordField chPassText;

@@ -1,5 +1,6 @@
 package pmr.mvd.positioner.controller;
 
+import com.github.wolfie.refresher.Refresher;
 import com.vaadin.annotations.Push;
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
@@ -8,6 +9,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.LatLon;
+import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.bean.DevPoint;
@@ -28,6 +30,9 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     private Table statusCar;
     private GoogleMap googleMap;
     private GoogleMapPolyline polyline;
+    private String username;
+
+    private ArrayList<GoogleMapMarker> list;
 
     public Table getStatusCar(){
         return this.statusCar;
@@ -56,7 +61,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     public MainView(){
         final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         String isAdmin = "0";
-        String username = "";
+        //String username = "";
         try{
             isAdmin = hidden.pullUp("admin");
             username = hidden.pullUp("username");
@@ -120,12 +125,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         googleMap.setSizeFull();
         googleMap.setHeight("700px");
 
-        ArrayList<DevPoint> points = dao.getLastPosition(username);
-        if (points.size() != 0) {
-            for (DevPoint point : points) {
-                googleMap.addMarker(point.getName(), new LatLon(Double.parseDouble(point.getLat()), Double.parseDouble(point.getLon())), false, null);
-            }
-        }
+        RefreshData(username);
 
         main.addComponent(googleMap);
 
@@ -145,7 +145,36 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         statusCar.addValueChangeListener(new StatusCarListener(this));
         main.addComponent(statusCar);
 
+        Refresher refresher = new Refresher();
+        refresher.setRefreshInterval(15000);
+        refresher.addListener(new Refresher.RefreshListener() {
+            @Override
+            public void refresh(Refresher refresher) {
+                if (list.size() != 0){
+                    for (int i = 0; i < list.size(); i++){
+                        GoogleMapMarker marker = list.get(i);
+                        googleMap.removeMarker(marker);
+                        list.remove(i);
+                    }
+                    RefreshData(username);
+                }
+            }
+        });
+
+        addExtension(refresher);
+        
         setCompositionRoot(main);
+    }
+
+    private void RefreshData(String username){
+        ArrayList<DevPoint> points = dao.getLastPosition(username);
+        if (points.size() != 0) {
+            list = new ArrayList<GoogleMapMarker>();
+            for (DevPoint point : points) {
+                GoogleMapMarker googleMapMarker = googleMap.addMarker(point.getName(), new LatLon(Double.parseDouble(point.getLat()), Double.parseDouble(point.getLon())), false, null);
+                list.add(googleMapMarker);
+            }
+        }
     }
 
     @Override
