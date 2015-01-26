@@ -8,15 +8,16 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.LatLon;
-import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
-import pmr.mvd.positioner.bean.*;
+import pmr.mvd.positioner.bean.DevPoint;
+import pmr.mvd.positioner.bean.GroupDev;
 import pmr.mvd.positioner.controller.MenuSelectedEvents.*;
+import pmr.mvd.positioner.controller.TableChangeListener.StatusCarListener;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
-import java.util.*;
+import java.util.ArrayList;
 
 @Push
 public class MainView extends CustomComponent implements View, Action.Handler, Property.ValueChangeListener{
@@ -141,31 +142,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
         statusCar.setPageLength(statusCar.size());
         
-        statusCar.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent event) {
-                String message = "1";
-
-                try {message = String.valueOf(event.getProperty().getValue());} catch (NumberFormatException ignored){}
-                ArrayList<Positions> positionses = dao.GetPositions(hidden.pullUp("device"));
-
-                try {
-                    Positions pos = positionses.get(Integer.parseInt(message) - 1);
-                    googleMap.setCenter(new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())));
-
-                    Collection points = googleMap.getMarkers();
-                    try{
-                        for (Object marker : points) {
-                            googleMap.removeMarker((GoogleMapMarker) marker);
-                        }
-                    } catch (Exception ignored){}
-
-                    googleMap.addMarker(hidden.pullUp("device"), new LatLon(Double.parseDouble(pos.getLatitude()), Double.parseDouble(pos.getLongitude())), false, null);
-
-                    Notification.show("Транспортное средство: " + hidden.pullUp("device") + ", широта: " + pos.getLatitude() + ", долгота: " + pos.getLongitude());
-                } catch (NumberFormatException ignored){}
-            }
-        });
+        statusCar.addValueChangeListener(new StatusCarListener(this));
         main.addComponent(statusCar);
 
         setCompositionRoot(main);
