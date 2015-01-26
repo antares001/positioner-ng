@@ -33,6 +33,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     private String username;
 
     private ArrayList<GoogleMapMarker> list;
+    private ArrayList<String> menuItems;
 
     public Table getStatusCar(){
         return this.statusCar;
@@ -79,11 +80,12 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         
         ArrayList<GroupDev> deviceses = dao.GetDevices(username);
         for(GroupDev device : deviceses){
-            automobile.addItem(device.getDevice(), new SetDataDevices(this));
+            MenuBar.MenuItem menuAutomobile = automobile.addItem(device.getDevice(), new SetDataDevices(this));
+            menuAutomobile.setCheckable(true);
         }
 
         MenuBar.MenuItem tracks = menuBar.addItem("Треки", null);
-        tracks.addItem("Показать трек выбранного ТС", new SetPathDevice(this));
+        tracks.addItem("Показать трек выбранных ТС", new SetPathDevice(this));
         tracks.addItem("Убрать все треки", new ClearAllPath(this));
 
         if (isAdmin.equals("1")) {
@@ -162,7 +164,6 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         });
 
         addExtension(refresher);
-        
         setCompositionRoot(main);
     }
 
