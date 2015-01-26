@@ -2,6 +2,7 @@ package pmr.mvd.positioner.controller;
 
 import com.github.wolfie.refresher.Refresher;
 import com.vaadin.annotations.Push;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
 import com.vaadin.navigator.View;
@@ -15,7 +16,6 @@ import com.vaadin.ui.*;
 import pmr.mvd.positioner.bean.DevPoint;
 import pmr.mvd.positioner.bean.GroupDev;
 import pmr.mvd.positioner.controller.MenuSelectedEvents.*;
-import pmr.mvd.positioner.controller.TableChangeListener.StatusCarListener;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
@@ -27,7 +27,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
     private SqlDao dao = new SqlDao();
     
-    private Table statusCar;
+    //private Table statusCar;
     private GoogleMap googleMap;
     private GoogleMapPolyline polyline;
     private String username;
@@ -35,13 +35,13 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     private ArrayList<GoogleMapMarker> list;
     private ArrayList<String> menuItems;
 
-    public Table getStatusCar(){
+    /*public Table getStatusCar(){
         return this.statusCar;
     }
 
     public void setStatusCar(Table arg){
         this.statusCar = arg;
-    }
+    }*/
 
     public GoogleMap getGoogleMap(){
         return this.googleMap;
@@ -75,14 +75,6 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
         MenuBar menuBar = new MenuBar();
         main.addComponent(menuBar);
-
-        MenuBar.MenuItem automobile = menuBar.addItem("Транспортные средства", null);
-        
-        ArrayList<GroupDev> deviceses = dao.GetDevices(username);
-        for(GroupDev device : deviceses){
-            MenuBar.MenuItem menuAutomobile = automobile.addItem(device.getDevice(), new SetDataDevices(this));
-            menuAutomobile.setCheckable(true);
-        }
 
         MenuBar.MenuItem tracks = menuBar.addItem("Треки", null);
         tracks.addItem("Показать трек выбранных ТС", new SetPathDevice(this));
@@ -120,32 +112,33 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         print.addItem("Отчет для одного ТС", new PrintOne());
         print.addItem("Отчет для группы ТС", new PrintGroup());
 
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+
+        Tree treeDevices = new Tree("Транспортные. средства");
+        ArrayList<GroupDev> deviceses = dao.GetDevices(username);
+        for (GroupDev groupDev : deviceses){
+            treeDevices.addItem(groupDev.getDevice());
+        }
+        treeDevices.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                Notification.show(valueChangeEvent.getProperty().getValue().toString());
+            }
+        });
+        treeDevices.setWidth(200, Unit.PIXELS);
+
+        horizontalLayout.addComponent(treeDevices);
 
         setGoogleMap(new GoogleMap(null, null, null));
         googleMap.setCenter(new LatLon(46.85, 29.60));
         googleMap.setZoom(14);
-        googleMap.setSizeFull();
-        googleMap.setHeight("700px");
+        googleMap.setHeight(1020, Unit.PIXELS);
+        googleMap.setWidth(1700, Unit.PIXELS);
 
         RefreshData(username);
 
-        main.addComponent(googleMap);
-
-        setStatusCar(new Table("Статус утройства"));
-        statusCar.setSelectable(true);
-        statusCar.setHeight("300px");
-        statusCar.setWidth("100%");
-
-        statusCar.addContainerProperty("Широта", String.class, null);
-        statusCar.addContainerProperty("Долгота", String.class, null);
-        statusCar.addContainerProperty("Направление", String.class, null);
-        statusCar.addContainerProperty("Скорость", String.class, null);
-        statusCar.addContainerProperty("Время", String.class, null);
-
-        statusCar.setPageLength(statusCar.size());
-        
-        statusCar.addValueChangeListener(new StatusCarListener(this));
-        main.addComponent(statusCar);
+        horizontalLayout.addComponent(googleMap);
+        main.addComponent(horizontalLayout);
 
         Refresher refresher = new Refresher();
         refresher.setRefreshInterval(60000);
