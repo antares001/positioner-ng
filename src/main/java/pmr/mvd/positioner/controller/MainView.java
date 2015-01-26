@@ -12,10 +12,7 @@ import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
 import pmr.mvd.positioner.bean.*;
-import pmr.mvd.positioner.controller.MenuSelectedEvents.AdminDevicesMenu;
-import pmr.mvd.positioner.controller.MenuSelectedEvents.AdminUsersMenu;
-import pmr.mvd.positioner.controller.MenuSelectedEvents.PrintGroup;
-import pmr.mvd.positioner.controller.MenuSelectedEvents.PrintOne;
+import pmr.mvd.positioner.controller.MenuSelectedEvents.*;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 
@@ -27,8 +24,8 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
     private SqlDao dao = new SqlDao();
     
-    private Table statusCar = new Table("Статус утройства");
-    private GoogleMap googleMap = new GoogleMap(null,null,null);
+    private Table statusCar;
+    private GoogleMap googleMap;
     private GoogleMapPolyline polyline;
 
     public Table getStatusCar(){
@@ -82,7 +79,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
         MenuBar.MenuItem tracks = menuBar.addItem("Треки", null);
         tracks.addItem("Показать трек выбранного ТС", new SetPathDevice());
-        tracks.addItem("Убрать все треки", new ClearAllPaths());
+        tracks.addItem("Убрать все треки", new ClearAllPath(this));
 
         if (isAdmin.equals("1")) {
             MenuBar.MenuItem admins = menuBar.addItem("Администрирование", null);
@@ -117,6 +114,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         print.addItem("Отчет для группы ТС", new PrintGroup());
 
 
+        setGoogleMap(new GoogleMap(null,null,null));
         googleMap.setCenter(new LatLon(46.85, 29.60));
         googleMap.setZoom(14);
         googleMap.setSizeFull();
@@ -131,6 +129,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
         main.addComponent(googleMap);
 
+        setStatusCar(new Table("Статус утройства"));
         statusCar.setSelectable(true);
         statusCar.setHeight("300px");
         statusCar.setWidth("100%");
@@ -219,15 +218,6 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
             try{googleMap.removePolyline(polyline);} catch (NullPointerException ignored){}
             polyline = new GoogleMapPolyline(pathPoints, "#ff0000", 0.5, 5);
             googleMap.addPolyline(polyline);
-        }
-    }
-
-    private class ClearAllPaths implements MenuBar.Command{
-        @Override
-        public void menuSelected(MenuBar.MenuItem menuItem) {
-            try{
-                googleMap.removePolyline(polyline);
-            } catch (NullPointerException ignored){}
         }
     }
 
