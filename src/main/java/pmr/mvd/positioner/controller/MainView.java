@@ -2,7 +2,6 @@ package pmr.mvd.positioner.controller;
 
 import com.github.wolfie.refresher.Refresher;
 import com.vaadin.annotations.Push;
-import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
 import com.vaadin.navigator.View;
@@ -26,22 +25,12 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     public static final String NAME = "main";
 
     private SqlDao dao = new SqlDao();
-    
-    //private Table statusCar;
+
     private GoogleMap googleMap;
     private GoogleMapPolyline polyline;
     private String username;
 
     private ArrayList<GoogleMapMarker> list;
-    private ArrayList<String> menuItems;
-
-    /*public Table getStatusCar(){
-        return this.statusCar;
-    }
-
-    public void setStatusCar(Table arg){
-        this.statusCar = arg;
-    }*/
 
     public GoogleMap getGoogleMap(){
         return this.googleMap;
