@@ -72,13 +72,12 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         MenuBar.MenuItem automobile = menuBar.addItem("Транспортные средства", null);
         
         ArrayList<GroupDev> deviceses = dao.GetDevices(username);
-        final MenuBar.Command setDataDevices = new SetDataDevices();
         for(GroupDev device : deviceses){
-            automobile.addItem(device.getDevice(), setDataDevices);
+            automobile.addItem(device.getDevice(), new SetDataDevices(this));
         }
 
         MenuBar.MenuItem tracks = menuBar.addItem("Треки", null);
-        tracks.addItem("Показать трек выбранного ТС", new SetPathDevice());
+        tracks.addItem("Показать трек выбранного ТС", new SetPathDevice(this));
         tracks.addItem("Убрать все треки", new ClearAllPath(this));
 
         if (isAdmin.equals("1")) {
@@ -114,7 +113,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         print.addItem("Отчет для группы ТС", new PrintGroup());
 
 
-        setGoogleMap(new GoogleMap(null,null,null));
+        setGoogleMap(new GoogleMap(null, null, null));
         googleMap.setCenter(new LatLon(46.85, 29.60));
         googleMap.setZoom(14);
         googleMap.setSizeFull();
@@ -170,55 +169,6 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         main.addComponent(statusCar);
 
         setCompositionRoot(main);
-    }
-
-    
-    private class SetDataDevices implements MenuBar.Command{
-        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
-        @Override
-        public void menuSelected(MenuBar.MenuItem selectedItem) {
-            Collection items = statusCar.getItemIds();
-            if(items.size() != 0){
-                statusCar.removeAllItems();
-            }
-            ArrayList<Positions> positionses = dao.GetPositions(selectedItem.getText());
-            hidden.pullDown("device", selectedItem.getText());
-            if (positionses.size() != 0) {
-                Positions first = positionses.get(0);
-                googleMap.setCenter(new LatLon(Double.parseDouble(first.getLatitude()), Double.parseDouble(first.getLongitude())));
-                Collection points = googleMap.getMarkers();
-
-                try{
-                    for (Object marker : points) {
-                        googleMap.removeMarker((GoogleMapMarker) marker);
-                    }
-                } catch (Exception e){}
-
-                googleMap.addMarker(selectedItem.getText(), new LatLon(Double.parseDouble(first.getLatitude()), Double.parseDouble(first.getLongitude())), false, null);
-                int k = 1;
-                for (Positions position : positionses) {
-                    statusCar.addItem(new Object[]{position.getLatitude(), position.getLongitude(), position.getCourse(), position.getSpeed(), position.getTime()}, k);
-                    k++;
-                }
-            } else {
-                Collection points = googleMap.getMarkers();
-                for (Object marker : points) {
-                    googleMap.removeMarker((GoogleMapMarker) marker);
-                }
-                Notification.show("Для данного ТС нет данных");
-            }
-        }
-    }
-
-    private class SetPathDevice implements MenuBar.Command{
-        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
-        @Override
-        public void menuSelected(MenuBar.MenuItem menuItem) {
-            ArrayList<LatLon> pathPoints = dao.GetPathDevice(hidden.pullUp("device"));
-            try{googleMap.removePolyline(polyline);} catch (NullPointerException ignored){}
-            polyline = new GoogleMapPolyline(pathPoints, "#ff0000", 0.5, 5);
-            googleMap.addPolyline(polyline);
-        }
     }
 
     @Override
