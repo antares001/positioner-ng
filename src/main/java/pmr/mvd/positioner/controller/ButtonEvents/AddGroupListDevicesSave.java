@@ -20,6 +20,10 @@ public class AddGroupListDevicesSave implements Button.ClickListener{
         this.groupListDevices = arg1;
     }
 
+    /**
+     * Администрирование->Управление пользователями->ТС->Добавить->Сохранить
+     * @param clickEvent событие
+     */
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
         HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());

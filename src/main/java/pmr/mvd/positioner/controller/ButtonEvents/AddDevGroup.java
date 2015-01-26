@@ -33,6 +33,10 @@ public class AddDevGroup implements Button.ClickListener{
         this.comboBoxUsers = arg;
     }
 
+    /**
+     * Обработка Администрирование->Управление трансп. средствами->Пользователи->Добавить
+     * @param clickEvent событие
+     */
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
         setWindow(new Window("Новый пользователь"));

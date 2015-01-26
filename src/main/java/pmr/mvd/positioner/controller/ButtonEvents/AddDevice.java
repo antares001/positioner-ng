@@ -38,6 +38,10 @@ public class AddDevice implements Button.ClickListener{
         this.idname = arg;
     }
 
+    /**
+     * Администрирование->Управление ТС->Добавить
+     * @param clickEvent событие
+     */
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
         final FormLayout formLayout = new FormLayout();

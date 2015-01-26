@@ -34,6 +34,10 @@ public class AddGroupListDevices implements Button.ClickListener{
         this.groupListDevices = arg;
     }
 
+    /**
+     * Администрирование->Управление пользователями->ТС->Добавить
+     * @param clickEvent событие
+     */
     @Override
     public void buttonClick(Button.ClickEvent clickEvent) {
         setWindow(new Window("Добавление транспортного средства для пользователя"));
