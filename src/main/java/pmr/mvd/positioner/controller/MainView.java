@@ -148,7 +148,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         main.addComponent(statusCar);
 
         Refresher refresher = new Refresher();
-        refresher.setRefreshInterval(15000);
+        refresher.setRefreshInterval(60000);
         refresher.addListener(new Refresher.RefreshListener() {
             @Override
             public void refresh(Refresher refresher) {
