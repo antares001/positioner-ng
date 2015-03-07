@@ -10,6 +10,7 @@ import pmr.mvd.positioner.bean.Devices;
 import pmr.mvd.positioner.bean.Report;
 import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
+import pmr.mvd.positioner.utils.PdfCreator;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,12 +20,13 @@ import java.util.TimeZone;
 
 public class PrintOne implements MenuBar.Command {
     private SqlDao dao = new SqlDao();
+    private PdfCreator pdfCreator = new PdfCreator();
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+    private Window windowAddTs = new Window("Отчет для одного транспортного средства");
 
     @Override
     public void menuSelected(MenuBar.MenuItem menuItem) {
-        final Window windowAddTs = new Window("Отчет для одного транспортного средства");
         windowAddTs.setWidth(750.0f, Sizeable.Unit.PIXELS);
         windowAddTs.setHeight(230.0f, Sizeable.Unit.PIXELS);
         windowAddTs.setModal(true);
@@ -113,9 +115,24 @@ public class PrintOne implements MenuBar.Command {
         HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         @Override
         public void buttonClick(Button.ClickEvent event) {
-            System.out.println("select * from positions where name='" + hidden.pullUp("combo_device") + "' and time > '" +
-                    hidden.pullUp("first_date") + "' and time < '" + hidden.pullUp("last_date") + "'");
-            ArrayList<Report> report = dao.GetReport(hidden.pullUp("combo_device"), hidden.pullUp("first_date"), hidden.pullUp("last_date"));
+            String name = hidden.pullUp("combo_device");
+            String from = hidden.pullUp("first_date");
+            String to = hidden.pullUp("last_date");
+            try {
+                if (from.equals(""))
+                    from = sdf.format(new Date());
+            } catch (NullPointerException e){
+                from = sdf.format(new Date());
+            }
+
+            try {
+                if (to.equals(""))
+                    to = sdf.format(new Date());
+            } catch (NullPointerException e){
+                to = sdf.format(new Date());
+            }
+            ArrayList<Report> report = dao.GetReport(name, from, to);
+            pdfCreator.CreateReport(report, name, from, to);
         }
     }
 }

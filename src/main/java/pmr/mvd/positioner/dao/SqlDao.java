@@ -130,7 +130,8 @@ public class SqlDao {
 
     public ArrayList<Report> GetReport(String name, String from, String to){
         ArrayList<Report> result = new ArrayList<Report>();
-        String query = "select * from positions where name='" + name + "' and time > '" + from + "' and time < '" + to + "'";
+        String query = "select * from positions INNER JOIN devices ON devices.id = positions.device_id where name = '" +
+                name + "' and time > '" + from + "' and time < '" + to + "'";
         try {
             Connection connection = sqlConnector.getConnect();
             Statement statement = connection.createStatement();
