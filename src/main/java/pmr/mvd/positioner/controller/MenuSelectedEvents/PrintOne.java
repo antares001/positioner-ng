@@ -115,7 +115,15 @@ public class PrintOne implements MenuBar.Command {
         HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         @Override
         public void buttonClick(Button.ClickEvent event) {
+            boolean selected = true;
             String name = hidden.pullUp("combo_device");
+            try {
+                if (name.equals(""))
+                    selected = false;
+            } catch (NullPointerException e){
+                selected = false;
+            }
+
             String from = hidden.pullUp("first_date");
             String to = hidden.pullUp("last_date");
             try {
@@ -131,8 +139,12 @@ public class PrintOne implements MenuBar.Command {
             } catch (NullPointerException e){
                 to = sdf.format(new Date());
             }
-            ArrayList<Report> report = dao.GetReport(name, from, to);
-            pdfCreator.CreateReport(report, name, from, to);
+
+            if (selected) {
+                ArrayList<Report> report = dao.GetReport(name, from, to);
+                pdfCreator.CreateReport(report, name, from, to);
+            } else
+                Notification.show("Выбирете ТС", Notification.Type.ERROR_MESSAGE);
         }
     }
 }
