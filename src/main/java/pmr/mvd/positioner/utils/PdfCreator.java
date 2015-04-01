@@ -11,12 +11,19 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class PdfCreator {
-    public void CreateReport(ArrayList<Report> arg, String name, String from, String to){
+    private String path;
+
+    public PdfCreator(){
+        this.path = UUID.randomUUID().toString();
+    }
+
+    public String CreateReport(ArrayList<Report> arg, String name, String from, String to){
         Document document = new Document();
         try {
-            PdfWriter.getInstance(document, new FileOutputStream("1.pdf"));
+            PdfWriter.getInstance(document, new FileOutputStream(path));
 
             BaseFont bf = BaseFont.createFont("/usr/share/fonts/corefonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
             Font fontTitle = new Font(bf, 16, Font.BOLD);
@@ -33,7 +40,7 @@ public class PdfCreator {
 
             PdfPTable table = new PdfPTable(4);
             table.setWidthPercentage(100.0f);
-            table.setWidths(new int[]{1, 3, 3, 1});
+            table.setWidths(new int[]{2, 3, 3, 1});
 
             PdfPCell titleData = new PdfPCell(new Paragraph("Дата", font));
             titleData.setBorder(Rectangle.BOTTOM);
@@ -73,8 +80,6 @@ public class PdfCreator {
                 cellVelocity.setBorder(Rectangle.BOTTOM);
                 cellVelocity.setHorizontalAlignment(Element.ALIGN_LEFT);
 
-                System.out.println(rep.getLatitude());
-
                 table.addCell(cellData);
                 table.addCell(cellLat);
                 table.addCell(cellLot);
@@ -94,5 +99,6 @@ public class PdfCreator {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return this.path;
     }
 }

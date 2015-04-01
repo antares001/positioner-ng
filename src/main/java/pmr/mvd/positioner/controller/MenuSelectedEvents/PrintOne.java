@@ -1,8 +1,7 @@
 package pmr.mvd.positioner.controller.MenuSelectedEvents;
 
 import com.vaadin.data.Property;
-import com.vaadin.server.Sizeable;
-import com.vaadin.server.VaadinSession;
+import com.vaadin.server.*;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.*;
@@ -12,6 +11,7 @@ import pmr.mvd.positioner.dao.SqlDao;
 import pmr.mvd.positioner.utils.HiddenVariable;
 import pmr.mvd.positioner.utils.PdfCreator;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,8 +22,9 @@ public class PrintOne implements MenuBar.Command {
     private SqlDao dao = new SqlDao();
     private PdfCreator pdfCreator = new PdfCreator();
 
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     private Window windowAddTs = new Window("Отчет для одного транспортного средства");
+    private Button downloadReport;
 
     @Override
     public void menuSelected(MenuBar.MenuItem menuItem) {
@@ -69,10 +70,14 @@ public class PrintOne implements MenuBar.Command {
         toDate.addValueChangeListener(lastDate);
         customLayout.addComponent(toDate, "toDate");
 
-        final Button printReport = new Button("Распечатать");
+        final Button printReport = new Button("Сгенерировать");
         PrintOneReport printOneReport = new PrintOneReport();
         printReport.addClickListener(printOneReport);
         customLayout.addComponent(printReport, "printReport");
+
+        downloadReport = new Button("Скачать отчет");
+        downloadReport.setEnabled(false);
+        customLayout.addComponent(downloadReport, "download");
 
         final Button closeWindow = new Button("Закрыть", new Button.ClickListener() {
             @Override
@@ -142,7 +147,14 @@ public class PrintOne implements MenuBar.Command {
 
             if (selected) {
                 ArrayList<Report> report = dao.GetReport(name, from, to);
-                pdfCreator.CreateReport(report, name, from, to);
+                if (report.size() != 0) {
+                    String path = pdfCreator.CreateReport(report, name, from, to);
+                    downloadReport.setEnabled(true);
+                    Resource resource = new FileResource(new File(path));
+                    FileDownloader fileDownloader = new FileDownloader(resource);
+                    fileDownloader.extend(downloadReport);
+                } else
+                    Notification.show("Нет данных по перемещениям ТС: " + name);
             } else
                 Notification.show("Выбирете ТС", Notification.Type.ERROR_MESSAGE);
         }
