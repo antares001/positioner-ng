@@ -4,14 +4,12 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.*;
-import net.scnetwork.positioner.bean.UserSettings;
-import net.scnetwork.positioner.dao.SqlDao;
 import net.scnetwork.positioner.utils.HiddenVariable;
 
 public class Login extends CustomComponent implements View, Button.ClickListener{
     public static final String NAME = "login";
 
-    private SqlDao dao = new SqlDao();
+    //private SqlDao dao = new SqlDao();
 
     private final TextField user = new TextField();
     private final PasswordField password = new PasswordField();
@@ -54,11 +52,11 @@ public class Login extends CustomComponent implements View, Button.ClickListener
         String pass = password.getValue();
 
         try {
-            UserSettings settings = dao.GetUserSetting(username);
-            if (pass.equals(settings.getPassword())) {
+            //UserSettings settings = dao.GetUserSetting(username);
+            if (pass.equals("1234")) {
                 HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
                 hidden.pullDown("username", username);
-                hidden.pullDown("admin", settings.getGroup());
+                hidden.pullDown("admin", "1");
                 getSession().setAttribute("user", username);
                 getUI().getNavigator().navigateTo(MainView.NAME);
             } else {

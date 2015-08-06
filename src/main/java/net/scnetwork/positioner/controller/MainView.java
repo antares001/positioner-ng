@@ -12,11 +12,8 @@ import com.vaadin.tapio.googlemaps.client.LatLon;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
-import net.scnetwork.positioner.bean.GroupDev;
 import net.scnetwork.positioner.controller.MenuSelectedEvents.*;
-import net.scnetwork.positioner.dao.SqlDao;
 import net.scnetwork.positioner.utils.HiddenVariable;
-import net.scnetwork.positioner.bean.DevPoint;
 
 import java.util.ArrayList;
 
@@ -24,7 +21,7 @@ import java.util.ArrayList;
 public class MainView extends CustomComponent implements View, Action.Handler, Property.ValueChangeListener{
     public static final String NAME = "main";
 
-    private SqlDao dao = new SqlDao();
+    //private SqlDao dao = new SqlDao();
 
     private GoogleMap googleMap;
     private GoogleMapPolyline polyline;
@@ -103,7 +100,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
-        Tree treeDevices = new Tree("Транспортные. средства");
+        /*Tree treeDevices = new Tree("Транспортные. средства");
         ArrayList<GroupDev> deviceses = dao.GetDevices(username);
         for (GroupDev groupDev : deviceses){
             treeDevices.addItem(groupDev.getDevice());
@@ -116,7 +113,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         });
         treeDevices.setWidth(200, Unit.PIXELS);
 
-        horizontalLayout.addComponent(treeDevices);
+        horizontalLayout.addComponent(treeDevices);*/
 
         setGoogleMap(new GoogleMap(null, null, null));
         googleMap.setCenter(new LatLon(46.85, 29.60));
@@ -150,14 +147,14 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
     }
 
     private void RefreshData(String username){
-        ArrayList<DevPoint> points = dao.getLastPosition(username);
+        /*ArrayList<DevPoint> points = dao.getLastPosition(username);
         if (points.size() != 0) {
             list = new ArrayList<GoogleMapMarker>();
             for (DevPoint point : points) {
                 GoogleMapMarker googleMapMarker = googleMap.addMarker(point.getName(), new LatLon(Double.parseDouble(point.getLat()), Double.parseDouble(point.getLon())), false, null);
                 list.add(googleMapMarker);
             }
-        }
+        }*/
     }
 
     @Override
