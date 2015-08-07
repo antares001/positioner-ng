@@ -9,8 +9,6 @@ import net.scnetwork.positioner.utils.HiddenVariable;
 public class Login extends CustomComponent implements View, Button.ClickListener{
     public static final String NAME = "login";
 
-    //private SqlDao dao = new SqlDao();
-
     private final TextField user = new TextField();
     private final PasswordField password = new PasswordField();
     private final Button loginButton = new Button("Войти", this);
@@ -52,7 +50,6 @@ public class Login extends CustomComponent implements View, Button.ClickListener
         String pass = password.getValue();
 
         try {
-            //UserSettings settings = dao.GetUserSetting(username);
             if (username.equals("admin") && pass.equals("admin")) {
                 HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
                 hidden.pullDown("username", username);
@@ -60,7 +57,6 @@ public class Login extends CustomComponent implements View, Button.ClickListener
                 getSession().setAttribute("user", username);
                 getUI().getNavigator().navigateTo(MainView.NAME);
             } else {
-                //password.setValue(null);
                 password.focus();
             }
         } catch (NullPointerException e){

@@ -9,7 +9,7 @@
 	<name>positioner</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>7.5.2</vaadin.version>
+		<vaadin.version>7.5.3</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
         <jetty.port>9999</jetty.port>
 	</properties>
@@ -92,7 +92,7 @@
         <dependency>
 			<groupId>com.vaadin.tapio</groupId>
 			<artifactId>googlemaps</artifactId>
-			<version>1.0.0</version>
+			<version>1.1.2</version>
 		</dependency>
         <dependency>
             <groupId>mysql</groupId>
