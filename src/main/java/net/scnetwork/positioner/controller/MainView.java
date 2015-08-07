@@ -62,14 +62,14 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         MenuBar menuBar = new MenuBar();
         main.addComponent(menuBar);
 
-        MenuBar.MenuItem tracks = menuBar.addItem("Треки", null);
-        tracks.addItem("Показать трек выбранных ТС", new SetPathDevice(this));
-        tracks.addItem("Убрать все треки", new ClearAllPath(this));
+        MenuBar.MenuItem tracks = menuBar.addItem("Данные", null);
+        tracks.addItem("Подключиться к БД", new ConnectDatabases(this));
+        tracks.addItem("Закгрузить файл", new LoadFile(this));
 
         if (isAdmin.equals("1")) {
             MenuBar.MenuItem admins = menuBar.addItem("Администрирование", null);
 
-            admins.addItem("Транспортные средства", new AdminDevicesMenu());
+            admins.addItem("Базы данных", new AdminDevicesMenu());
 
             admins.addItem("Пользователи", new AdminUsersMenu());
 
@@ -100,11 +100,12 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
-        /*Tree treeDevices = new Tree("Транспортные. средства");
-        ArrayList<GroupDev> deviceses = dao.GetDevices(username);
+        Tree treeDevices = new Tree("Треки");
+        /*ArrayList<GroupDev> deviceses = dao.GetDevices(username);
         for (GroupDev groupDev : deviceses){
             treeDevices.addItem(groupDev.getDevice());
         }
+        */
         treeDevices.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -113,7 +114,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         });
         treeDevices.setWidth(200, Unit.PIXELS);
 
-        horizontalLayout.addComponent(treeDevices);*/
+        horizontalLayout.addComponent(treeDevices);
 
         setGoogleMap(new GoogleMap(null, null, null));
         googleMap.setCenter(new LatLon(46.85, 29.60));

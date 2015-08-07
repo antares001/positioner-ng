@@ -31,6 +31,7 @@
     <orderEntry type="library" name="Maven: com.github.branflake2267:gwt-maps-api:3.10.0-alpha-7" level="project" />
     <orderEntry type="library" name="Maven: com.google.gwt.google-apis:gwt-ajaxloader:1.1.0" level="project" />
     <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.34" level="project" />
+    <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.8.11.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.vaadin:vaadin-testbench-api:7.5.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.vaadin:vaadin-testbench-core:4.0.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.seleniumhq.selenium:selenium-server:2.46.0" level="project" />

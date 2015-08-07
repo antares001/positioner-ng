@@ -53,7 +53,7 @@ public class Login extends CustomComponent implements View, Button.ClickListener
 
         try {
             //UserSettings settings = dao.GetUserSetting(username);
-            if (pass.equals("1234")) {
+            if (username.equals("admin") && pass.equals("admin")) {
                 HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
                 hidden.pullDown("username", username);
                 hidden.pullDown("admin", "1");
