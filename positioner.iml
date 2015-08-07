@@ -32,6 +32,9 @@
     <orderEntry type="library" name="Maven: com.google.gwt.google-apis:gwt-ajaxloader:1.1.0" level="project" />
     <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.34" level="project" />
     <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.8.11.1" level="project" />
+    <orderEntry type="library" name="Maven: org.postgresql:postgresql:9.4-1201-jdbc41" level="project" />
+    <orderEntry type="library" name="Maven: net.sourceforge.jtds:jtds:1.3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.mongodb:mongo-java-driver:3.0.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.vaadin:vaadin-testbench-api:7.5.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.vaadin:vaadin-testbench-core:4.0.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.seleniumhq.selenium:selenium-server:2.46.0" level="project" />
