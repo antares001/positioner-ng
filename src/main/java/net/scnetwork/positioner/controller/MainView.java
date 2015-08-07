@@ -1,6 +1,5 @@
 package net.scnetwork.positioner.controller;
 
-import com.github.wolfie.refresher.Refresher;
 import com.vaadin.annotations.Push;
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
@@ -14,6 +13,7 @@ import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
 import net.scnetwork.positioner.controller.MenuSelectedEvents.*;
 import net.scnetwork.positioner.utils.HiddenVariable;
+import org.vaadin.teemu.VaadinIcons;
 
 import java.util.ArrayList;
 
@@ -64,12 +64,12 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
         MenuBar.MenuItem tracks = menuBar.addItem("Данные", null);
         tracks.addItem("Подключиться к БД", new ConnectDatabases(this));
-        tracks.addItem("Закгрузить файл", new LoadFile(this));
+        tracks.addItem("Загрузить файл", new LoadFile(this));
 
         if (isAdmin.equals("1")) {
             MenuBar.MenuItem admins = menuBar.addItem("Администрирование", null);
 
-            admins.addItem("Базы данных", new AdminDevicesMenu());
+            admins.addItem("Базы данных", new DatabasesProfile());
 
             admins.addItem("Пользователи", new AdminUsersMenu());
 
@@ -95,17 +95,13 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         /**
          * Окно для задания параметров печати отчета для одного транспортного средства.
          */
-        print.addItem("Отчет для одного ТС", new PrintOne());
+        print.addItem("Отчет для одного ТС", null);
         print.addItem("Отчет для группы ТС", new PrintGroup());
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
         Tree treeDevices = new Tree("Треки");
-        /*ArrayList<GroupDev> deviceses = dao.GetDevices(username);
-        for (GroupDev groupDev : deviceses){
-            treeDevices.addItem(groupDev.getDevice());
-        }
-        */
+
         treeDevices.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -122,11 +118,11 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         googleMap.setHeight(1020, Unit.PIXELS);
         googleMap.setWidth(1700, Unit.PIXELS);
 
-        RefreshData(username);
+        //RefreshData(username);
 
         horizontalLayout.addComponent(googleMap);
         main.addComponent(horizontalLayout);
-
+/*
         Refresher refresher = new Refresher();
         refresher.setRefreshInterval(60000);
         refresher.addListener(new Refresher.RefreshListener() {
@@ -143,7 +139,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
             }
         });
 
-        addExtension(refresher);
+        addExtension(refresher);*/
         setCompositionRoot(main);
     }
 
