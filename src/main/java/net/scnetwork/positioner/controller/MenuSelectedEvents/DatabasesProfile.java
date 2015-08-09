@@ -16,7 +16,7 @@ public class DatabasesProfile implements MenuBar.Command{
 
     @Override
     public void menuSelected(MenuBar.MenuItem menuItem) {
-        setWindow(new Window("Управление транспортными средствами"));
+        setWindow(new Window("Управление подключениями к БД"));
         window.setWidth(600.0f, Sizeable.Unit.PIXELS);
         window.setHeight(400.0f, Sizeable.Unit.PIXELS);
         window.setModal(true);
