@@ -92,11 +92,7 @@ public class PdfCreator {
             document.add(blank);
             document.add(table);
             document.close();
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (DocumentException | IOException e) {
             e.printStackTrace();
         }
         return this.path;

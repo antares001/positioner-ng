@@ -13,7 +13,6 @@ import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
 import net.scnetwork.positioner.controller.MenuSelectedEvents.*;
 import net.scnetwork.positioner.utils.HiddenVariable;
-import org.vaadin.teemu.VaadinIcons;
 
 import java.util.ArrayList;
 
@@ -118,40 +117,9 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         googleMap.setHeight(1020, Unit.PIXELS);
         googleMap.setWidth(1700, Unit.PIXELS);
 
-        //RefreshData(username);
-
         horizontalLayout.addComponent(googleMap);
         main.addComponent(horizontalLayout);
-/*
-        Refresher refresher = new Refresher();
-        refresher.setRefreshInterval(60000);
-        refresher.addListener(new Refresher.RefreshListener() {
-            @Override
-            public void refresh(Refresher refresher) {
-                if (list.size() != 0){
-                    for (int i = 0; i < list.size(); i++){
-                        GoogleMapMarker marker = list.get(i);
-                        googleMap.removeMarker(marker);
-                        list.remove(i);
-                    }
-                    RefreshData(username);
-                }
-            }
-        });
-
-        addExtension(refresher);*/
         setCompositionRoot(main);
-    }
-
-    private void RefreshData(String username){
-        /*ArrayList<DevPoint> points = dao.getLastPosition(username);
-        if (points.size() != 0) {
-            list = new ArrayList<GoogleMapMarker>();
-            for (DevPoint point : points) {
-                GoogleMapMarker googleMapMarker = googleMap.addMarker(point.getName(), new LatLon(Double.parseDouble(point.getLat()), Double.parseDouble(point.getLon())), false, null);
-                list.add(googleMapMarker);
-            }
-        }*/
     }
 
     @Override
