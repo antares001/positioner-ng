@@ -79,7 +79,6 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
                 }
             });
         }
-        MenuBar.MenuItem print = menuBar.addItem("Отчеты",null);
 
         MenuBar.Command exitCommand = new MenuBar.Command() {
             @Override
@@ -90,12 +89,6 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         };
 
         MenuBar.MenuItem exit = menuBar.addItem("Выход", exitCommand);
-
-        /**
-         * Окно для задания параметров печати отчета для одного транспортного средства.
-         */
-        print.addItem("Отчет для одного ТС", null);
-        print.addItem("Отчет для группы ТС", new PrintGroup());
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
