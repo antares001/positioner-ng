@@ -16,7 +16,6 @@ public class ConnectDatabases implements MenuBar.Command{
 
     @Override
     public void menuSelected(MenuBar.MenuItem menuItem) {
-        HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         window = new Window("Подключение к базе");
         window.setModal(true);
         window.setHeight(300.0f, Sizeable.Unit.PIXELS);
