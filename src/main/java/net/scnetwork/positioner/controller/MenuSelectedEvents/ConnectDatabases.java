@@ -20,12 +20,14 @@ public class ConnectDatabases implements MenuBar.Command{
         window = new Window("Подключение к базе");
         window.setModal(true);
         window.setHeight(300.0f, Sizeable.Unit.PIXELS);
-        window.setWidth(800.0f, Sizeable.Unit.PIXELS);
+        window.setWidth(600.0f, Sizeable.Unit.PIXELS);
 
         CustomLayout connectLayout = new CustomLayout("databaseConnect");
         ComboBox typeConnection = new ComboBox();
         typeConnection.addItems("PostgreSQL");
         typeConnection.addItems("MySQL");
+        typeConnection.setInvalidAllowed(false);
+        typeConnection.setNullSelectionAllowed(false);
         connectLayout.addComponent(typeConnection, "typeConnect");
 
         TextField username = new TextField();
@@ -36,6 +38,19 @@ public class ConnectDatabases implements MenuBar.Command{
 
         TextField database = new TextField();
         connectLayout.addComponent(database, "nameDatabaseConnect");
+
+        Button ok = new Button("Подключение");
+        connectLayout.addComponent(ok, "okbutton");
+
+        Button cancel = new Button("Отмена");
+        connectLayout.addComponent(cancel, "cancelbutton");
+
+        cancel.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                window.close();
+            }
+        });
 
         window.setContent(connectLayout);
 
