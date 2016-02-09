@@ -4,7 +4,9 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.*;
+import net.scnetwork.positioner.bean.BeanSettings;
 import net.scnetwork.positioner.utils.HiddenVariable;
+import net.scnetwork.positioner.utils.UserSettings;
 
 public class Login extends CustomComponent implements View, Button.ClickListener{
     public static final String NAME = "login";
@@ -56,6 +58,11 @@ public class Login extends CustomComponent implements View, Button.ClickListener
                 hidden.pullDown("admin", "1");
                 getSession().setAttribute("user", username);
                 getUI().getNavigator().navigateTo(MainView.NAME);
+
+                BeanSettings bean = new BeanSettings();
+                bean.setUsername(username);
+                bean.setPassword(pass);
+                bean.setSession(VaadinSession.getCurrent().getSession().getId());
             } else {
                 password.focus();
             }
