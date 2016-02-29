@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" creator="OruxMaps v.6.0.1" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+    <metadata>
+        <name><![CDATA[2014-11-04 18:35]]></name>
+        <desc><![CDATA[]]></desc>
+        <link href="http://www.oruxmaps.com">
+            <text>OruxMaps</text>
+        </link>
+        <time>2014-11-04T16:35:18Z</time>
+        <bounds maxlat="46.8442201" maxlon="29.6733194" minlat="46.8362536" minlon="29.6575194"/>
+    </metadata>
+    <trk>
+        <name><![CDATA[2014-11-04 18:35]]></name>
+        <desc><![CDATA[<h1>OruxMaps</h1><br /><hr align="center" width="480" style="height: 2px; width: 517px"/><h2>Название: 2014-11-04 18:35</h2><br /><p>Время старта: 11/04/2014 18:44</p><p>Время финиша: 11/04/2014 19:08</p><p>Дистанция: 4,6km (00:24)</p><p>Время движения: 00:21</p><p>Средняя скорость: 11,5km/h</p><p>Средн. скорость движ.: 12,7km/h</p><p>Макс. скорость: 48km/h</p><p>Мин. высота: 28m</p><p>Макс. высота: 67m</p><p>Набор скорости: 568,2m/h</p><p>Сброс скорости: -556,1m/h</p><p>Набор высоты: 97m</p><p>Потеря высоты: -88m</p><p>Время набора скор.: 00:10</p><p>Время сброса скор.: 00:09</p><hr align="center" width="480" style="height: 2px; width: 517px"/>]]></desc>
+        <type>Не определено</type>
+        <extensions>
+            <om:oruxmapsextensions xmlns:om="http://www.oruxmaps.com/oruxmapsextensions/1/0">
+                <om:ext type="TYPE" subtype="0">0</om:ext>
+            </om:oruxmapsextensions>
+        </extensions>
+        <trkseg>
+            <trkpt lat="46.8431026" lon="29.6709806">
+                <ele>40.17</ele>
+                <time>2014-11-04T16:44:35Z</time>
+            </trkpt>
+            <trkpt lat="46.8430891" lon="29.6706745">
+                <ele>42.28</ele>
+                <time>2014-11-04T16:44:39Z</time>
+            </trkpt>
+            <trkpt lat="46.8430836" lon="29.6703449">
+                <ele>40.43</ele>
+                <time>2014-11-04T16:44:44Z</time>
+            </trkpt>
+            <trkpt lat="46.8430627" lon="29.6700488">
+                <ele>41.06</ele>
+                <time>2014-11-04T16:44:48Z</time>
+            </trkpt>
+            <trkpt lat="46.8430611" lon="29.6697550">
+                <ele>40.12</ele>
+                <time>2014-11-04T16:44:52Z</time>
+            </trkpt>
+            <trkpt lat="46.8430645" lon="29.6694812">
+                <ele>35.63</ele>
+                <time>2014-11-04T16:44:56Z</time>
+            </trkpt>
+        </trkseg>
+    </trk>
+</gpx>
