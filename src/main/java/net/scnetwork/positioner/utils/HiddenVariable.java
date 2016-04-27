@@ -9,9 +9,9 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class HiddenVariable extends VelocityContext{
-    public static HiddenVariable instance;
-    public Map<String,String> map = new HashMap<String, String>();
-    public static String currentContext;
+    private static HiddenVariable instance;
+    private Map<String,String> map = new HashMap<String, String>();
+    private static String currentContext;
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("[dd-MM-yy hh:mm:ss.ssssss]");
 

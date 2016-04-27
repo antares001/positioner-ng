@@ -35,7 +35,7 @@
     <orderEntry type="library" name="Maven: org.postgresql:postgresql:9.4-1201-jdbc41" level="project" />
     <orderEntry type="library" name="Maven: net.sourceforge.jtds:jtds:1.3.1" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:mongo-java-driver:3.0.3" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: com.vaadin:vaadin-testbench-api:7.6.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: com.vaadin:vaadin-testbench-api:7.6.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.vaadin:vaadin-testbench-core:4.1.0.alpha1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.seleniumhq.selenium:selenium-server:2.47.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.bouncycastle:bcprov-jdk15on:1.48" level="project" />
