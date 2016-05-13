@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class JaxbTests {
+    private static final String XML_NULL = "<gpx creator=\"OruxMaps v.6.0.1\">" +
+            "<metadata>" +
+            "<bounds maxlat=\"10\" maxlon=\"15\" minlat=\"5\" minlon=\"6\"/>" +
+            "</metadata>" +
+            "</gpx>";
     private static final String XML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
             "<gpx creator=\"OruxMaps v.6.0.1\" version=\"1.1\" xmlns=\"http://www.topografix.com/GPX/1/1\" xmlns:gpxtpx=\"http://www.garmin.com/xmlschemas/TrackPointExtension/v1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">" +
             "<metadata>" +
@@ -67,12 +72,12 @@ public class JaxbTests {
     public void GpxCreateTest(){
         Gpx gpx = new Gpx();
 
-        gpx.setXmlns("http://www.topografix.com/GPX/1/1");
-        gpx.setXmlnsGpxtpx("http://www.garmin.com/xmlschemas/TrackPointExtension/v1");
+        //gpx.setXmlns("http://www.topografix.com/GPX/1/1");
+        //gpx.setXmlnsGpxtpx("http://www.garmin.com/xmlschemas/TrackPointExtension/v1");
         gpx.setCreator("OruxMaps v.6.0.1");
         gpx.setVersion("1.1");
-        gpx.setXmlnsXsi("http://www.w3.org/2001/XMLSchema-instance");
-        gpx.setXsiSchemaLocation("http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd");
+        //gpx.setXmlnsXsi("http://www.w3.org/2001/XMLSchema-instance");
+        //gpx.setXsiSchemaLocation("http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd");
 
         Metadata metadata = new Metadata();
         metadata.setName("testName");
@@ -138,9 +143,20 @@ public class JaxbTests {
             JAXBContext jaxbContext = JAXBContext.newInstance(Gpx.class);
 
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            Gpx gpx = (Gpx) unmarshaller.unmarshal(new InputSource(new StringReader(XML)));
+            Gpx gpx = (Gpx) unmarshaller.unmarshal(new InputSource(new StringReader(XML_NULL)));
 
             System.out.println("Creator: " + gpx.getCreator());
+
+            Metadata metadata = gpx.getMetadata();
+
+            try{
+                if (metadata.equals(new Metadata()))
+                    System.out.println("Error");
+            } catch (NullPointerException e){
+                System.out.println("Error metadata");
+            }
+
+            Bounds bounds = metadata.getBounds();
         } catch (JAXBException e) {
             e.printStackTrace();
         }
