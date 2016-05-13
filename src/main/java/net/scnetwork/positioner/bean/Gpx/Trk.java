@@ -42,7 +42,7 @@ public class Trk {
         return trackSegments;
     }
 
-    @XmlElement
+    @XmlElement(name = "trkseg")
     public void setTrackSegments(ArrayList<TrackSegment> trackSegments) {
         this.trackSegments = trackSegments;
     }
