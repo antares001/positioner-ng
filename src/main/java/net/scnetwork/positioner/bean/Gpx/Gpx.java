@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 
-@XmlRootElement(name = "gpx", namespace = "http://www.topografix.com/GPX/1/1")
+@XmlRootElement(name = "gpx")
 public class Gpx {
     private Metadata metadata;
     private ArrayList<Trk> trk;
