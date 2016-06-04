@@ -15,8 +15,7 @@ import javax.servlet.annotation.WebServlet;
 
 @Theme("mytheme")
 @SuppressWarnings("serial")
-public class MyVaadinUI extends UI
-{
+public class MyVaadinUI extends UI {
 
     @WebServlet(value = "/*", asyncSupported = true)
     @VaadinServletConfiguration(productionMode = false, ui = MyVaadinUI.class, widgetset = "net.scnetwork.positioner.AppWidgetSet")
@@ -53,7 +52,7 @@ public class MyVaadinUI extends UI
             }
         });
 
-        if (getSession().getAttribute("user") != null){
+        if (getSession().getAttribute("user") != null) {
             getNavigator().navigateTo(Login.NAME);
             return;
         } else {
