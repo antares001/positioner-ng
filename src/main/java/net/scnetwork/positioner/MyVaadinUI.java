@@ -1,27 +1,19 @@
 package net.scnetwork.positioner;
 
 import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServlet;
+import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.UI;
 import net.scnetwork.positioner.controller.Login;
 import net.scnetwork.positioner.controller.MainView;
 import net.scnetwork.positioner.controller.Settings;
 
-import javax.servlet.annotation.WebServlet;
 
-@Theme("mytheme")
-@SuppressWarnings("serial")
+@Theme("valo")
+@SpringUI
 public class MyVaadinUI extends UI {
-
-    @WebServlet(value = "/*", asyncSupported = true)
-    @VaadinServletConfiguration(productionMode = false, ui = MyVaadinUI.class, widgetset = "net.scnetwork.positioner.AppWidgetSet")
-    public static class Servlet extends VaadinServlet {
-    }
-
     @Override
     protected void init(VaadinRequest request) {
         new Navigator(this, this);
