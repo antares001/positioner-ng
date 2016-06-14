@@ -3,11 +3,15 @@ package net.scnetwork.positioner.controller;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.*;
 import net.scnetwork.positioner.bean.BeanSettings;
 import net.scnetwork.positioner.utils.HiddenVariable;
-import net.scnetwork.positioner.utils.UserSettings;
+import org.springframework.beans.factory.annotation.Autowired;
 
+@SpringComponent
+@UIScope
 public class Login extends CustomComponent implements View, Button.ClickListener{
     public static final String NAME = "login";
 
@@ -15,10 +19,12 @@ public class Login extends CustomComponent implements View, Button.ClickListener
     private final PasswordField password = new PasswordField();
     private final Button loginButton = new Button("Войти", this);
 
+    @Autowired
     public Login() {
         setSizeFull();
 
         final VerticalLayout layout = new VerticalLayout();
+        layout.setSpacing(true);
         layout.setMargin(true);
 
         Panel panel = new Panel("Вход в систему");
@@ -26,14 +32,15 @@ public class Login extends CustomComponent implements View, Button.ClickListener
         layout.addComponent(panel);
         layout.setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
 
-        CustomLayout custom = new CustomLayout("loginlayout");
-        custom.addStyleName("customlayoutexample");
+        VerticalLayout custom = new VerticalLayout();
 
+        custom.setSpacing(true);
+        custom.setMargin(true);
         panel.setContent(custom);
 
-        custom.addComponent(this.user, "username");
-        custom.addComponent(this.password, "password");
-        custom.addComponent(this.loginButton, "okbutton");
+        custom.addComponent(this.user);
+        custom.addComponent(this.password);
+        custom.addComponent(this.loginButton);
 
         setCompositionRoot(layout);
     }

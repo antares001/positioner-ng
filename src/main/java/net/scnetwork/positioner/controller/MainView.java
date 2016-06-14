@@ -6,6 +6,8 @@ import com.vaadin.event.Action;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.LatLon;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
@@ -13,10 +15,13 @@ import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
 import net.scnetwork.positioner.controller.MenuSelectedEvents.*;
 import net.scnetwork.positioner.utils.HiddenVariable;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 
 @Push
+@SpringComponent
+@UIScope
 public class MainView extends CustomComponent implements View, Action.Handler, Property.ValueChangeListener{
     public static final String NAME = "main";
 
@@ -44,6 +49,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         this.polyline = arg;
     }
 
+    @Autowired
     public MainView(){
         final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         String isAdmin = "0";

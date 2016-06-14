@@ -3,16 +3,22 @@ package net.scnetwork.positioner.controller;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.VaadinService;
+import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+@SpringComponent
+@UIScope
 public class Settings extends CustomComponent implements View, Button.ClickListener{
     public static final String NAME = "settings";
 
+    @Autowired
     public Settings(){
         setSizeFull();
 
