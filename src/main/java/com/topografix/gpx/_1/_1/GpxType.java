@@ -119,6 +119,10 @@ public class GpxType {
         return this.wpt;
     }
 
+    public void setWpt(List<WptType> wpt){
+        this.wpt = wpt;
+    }
+
     /**
      * Gets the value of the rte property.
      * 
@@ -148,6 +152,10 @@ public class GpxType {
         return this.rte;
     }
 
+    public void setRte(List<RteType> rte){
+        this.rte = rte;
+    }
+
     /**
      * Gets the value of the trk property.
      * 
@@ -175,6 +183,10 @@ public class GpxType {
             trk = new ArrayList<TrkType>();
         }
         return this.trk;
+    }
+
+    public void setTrk(ArrayList<TrkType> trk){
+        this.trk = trk;
     }
 
     /**
