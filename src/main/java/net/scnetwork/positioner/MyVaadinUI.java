@@ -51,7 +51,6 @@ public class MyVaadinUI extends UI {
             getNavigator().navigateTo(MainView.NAME);
             return;
         }
-
     }
 
 }
