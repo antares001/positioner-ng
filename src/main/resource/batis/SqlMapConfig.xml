@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig
+        PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+<sqlMapConfig>
+    <properties resource="db.properties"/>
+    <settings useStatementNamespaces="false"
+        cacheModelsEnabled="true"
+        enhancementEnabled="true"
+        lazyLoadingEnabled="true"
+        maxRequests="32"
+        maxSessions="10"
+        maxTransactions="5"/>
+    <transactionManager type="JDBC">
+        <dataSource type="SIMPLE">
+            <property name="JDBC.Driver" value="org.postgresql.Driver"/>
+            <property name="JDBC.ConnectionURL" value="jdbc://localhost:5432/positioner"/>
+            <property name="JDBC.Username" value="positioner"/>
+            <property name="JDBC.Password" value="positioner"/>
+        </dataSource>
+    </transactionManager>
+    <sqlMap resource="SqlMap.xml"/>
+</sqlMapConfig>
