@@ -5,8 +5,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/rest/kml")
 public class KmlRest {
-    @RequestMapping("/rest/kml/test")
+    @RequestMapping("/echo")
     public String EchoTest(@RequestParam(value = "name", defaultValue = "test") String name){
         return name;
     }
