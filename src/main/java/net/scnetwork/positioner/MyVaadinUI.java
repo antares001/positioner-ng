@@ -11,7 +11,7 @@ import net.scnetwork.positioner.controller.MainView;
 import net.scnetwork.positioner.controller.Settings;
 
 
-@Theme("MyTheme")
+@Theme("valo")
 @SpringUI
 public class MyVaadinUI extends UI {
     @Override
