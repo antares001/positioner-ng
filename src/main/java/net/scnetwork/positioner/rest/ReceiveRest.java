@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class GpxRest {
-    @RequestMapping("/rest/gpx/test")
+public class ReceiveRest {
+    @RequestMapping("/rest/put/test")
     public String EchoTest(@RequestParam(value = "name", defaultValue = "test") String name){
         return name;
     }
