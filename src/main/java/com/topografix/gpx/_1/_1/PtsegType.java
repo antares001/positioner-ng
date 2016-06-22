@@ -75,4 +75,7 @@ public class PtsegType {
         return this.pt;
     }
 
+    public void setPt(List<PtType> pt) {
+        this.pt = pt;
+    }
 }

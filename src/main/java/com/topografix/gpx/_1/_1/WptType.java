@@ -334,6 +334,10 @@ public class WptType {
         return this.link;
     }
 
+    public void setLink(List<LinkType> link){
+        this.link = link;
+    }
+
     /**
      * Gets the value of the sym property.
      * 

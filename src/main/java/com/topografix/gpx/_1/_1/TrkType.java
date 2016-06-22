@@ -198,6 +198,10 @@ public class TrkType {
         return this.link;
     }
 
+    public void setLink(List<LinkType> link){
+        this.link = link;
+    }
+
     /**
      * Gets the value of the number property.
      * 
@@ -297,6 +301,10 @@ public class TrkType {
             trkseg = new ArrayList<TrksegType>();
         }
         return this.trkseg;
+    }
+
+    public void setTrkseg(List<TrksegType> tkrseg){
+        this.trkseg = trkseg;
     }
 
 }
