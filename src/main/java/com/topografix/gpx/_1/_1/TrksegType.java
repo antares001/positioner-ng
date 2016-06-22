@@ -78,6 +78,10 @@ public class TrksegType {
         return this.trkpt;
     }
 
+    public void setTrkpt(List<WptType> trkpt) {
+        this.trkpt = trkpt;
+    }
+
     /**
      * Gets the value of the extensions property.
      * 

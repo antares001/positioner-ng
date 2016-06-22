@@ -198,6 +198,10 @@ public class RteType {
         return this.link;
     }
 
+    public void setLink(List<LinkType> link) {
+        this.link = link;
+    }
+
     /**
      * Gets the value of the number property.
      * 
@@ -299,4 +303,7 @@ public class RteType {
         return this.rtept;
     }
 
+    public void setRtept(List<WptType> rtept) {
+        this.rtept = rtept;
+    }
 }
