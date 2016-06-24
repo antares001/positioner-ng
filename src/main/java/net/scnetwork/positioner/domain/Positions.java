@@ -1,7 +1,6 @@
-package net.scnetwork.positioner.bean;
+package net.scnetwork.positioner.domain;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class Positions {
     private static final SimpleDateFormat sdf = new SimpleDateFormat();

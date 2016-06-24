@@ -1,6 +1,6 @@
 package net.scnetwork.positioner.utils;
 
-import net.scnetwork.positioner.bean.Report;
+import net.scnetwork.positioner.domain.Report;
 
 import java.util.ArrayList;
 import java.util.UUID;
