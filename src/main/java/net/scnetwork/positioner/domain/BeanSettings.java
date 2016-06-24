@@ -1,4 +1,4 @@
-package net.scnetwork.positioner.bean;
+package net.scnetwork.positioner.domain;
 
 public class BeanSettings {
     private String username;

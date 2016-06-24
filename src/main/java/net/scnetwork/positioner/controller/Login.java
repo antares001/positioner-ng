@@ -6,7 +6,7 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.*;
-import net.scnetwork.positioner.bean.BeanSettings;
+import net.scnetwork.positioner.domain.BeanSettings;
 import net.scnetwork.positioner.utils.HiddenVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 

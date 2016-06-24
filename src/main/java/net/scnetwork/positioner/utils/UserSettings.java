@@ -1,6 +1,6 @@
 package net.scnetwork.positioner.utils;
 
-import net.scnetwork.positioner.bean.BeanSettings;
+import net.scnetwork.positioner.domain.BeanSettings;
 
 public class UserSettings {
     private static BeanSettings settings = new BeanSettings();
