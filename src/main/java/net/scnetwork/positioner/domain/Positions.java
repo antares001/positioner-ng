@@ -1,8 +1,10 @@
 package net.scnetwork.positioner.domain;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 
-public class Positions {
+public class Positions  implements Serializable{
+    private static final long serialVersionUID = 1L;
     private static final SimpleDateFormat sdf = new SimpleDateFormat();
 
     private String id;
