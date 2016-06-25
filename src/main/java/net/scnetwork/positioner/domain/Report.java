@@ -1,6 +1,10 @@
 package net.scnetwork.positioner.domain;
 
-public class Report {
+import java.io.Serializable;
+
+public class Report implements Serializable{
+    private static final long serialVersionUID = 1L;
+
     private String number;
     private String date;
     private String longitude;
@@ -54,5 +58,10 @@ public class Report {
 
     public void setUrl(String arg){
         this.url = arg;
+    }
+
+    public String toString(){
+        return "Number: " + number +
+                "date:" + date;
     }
 }
