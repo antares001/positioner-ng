@@ -1,14 +1,18 @@
 package net.scnetwork.positioner.rest;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.google.earth.kml._2.KmlType;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/rest/kml")
 public class KmlRest {
     @RequestMapping("/echo")
-    public String EchoTest(@RequestParam(value = "name", defaultValue = "test") String name){
+    public String getTest(@RequestParam(value = "name", defaultValue = "test") String name){
         return name;
+    }
+
+    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+    public KmlType getKml(@PathVariable(value = "id") String id){
+        return null;
     }
 }
