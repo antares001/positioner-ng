@@ -80,12 +80,10 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         }
         MenuBar.MenuItem print = menuBar.addItem("Отчеты",null);
 
-        MenuBar.Command exitCommand = (MenuBar.Command) selectedItem -> {
+        menuBar.addItem("Выход", (MenuBar.Command) selectedItem -> {
             getSession().setAttribute("user", null);
             getUI().getNavigator().navigateTo(NAME);
-        };
-
-        MenuBar.MenuItem exit = menuBar.addItem("Выход", exitCommand);
+        });
 
         /**
          * Окно для задания параметров печати отчета для одного транспортного средства.
