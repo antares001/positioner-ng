@@ -25,8 +25,6 @@ import java.util.ArrayList;
 public class MainView extends CustomComponent implements View, Action.Handler, Property.ValueChangeListener{
     public static final String NAME = "main";
 
-    //private SqlDao dao = new SqlDao();
-
     private GoogleMap googleMap;
     private GoogleMapPolyline polyline;
     private String username;
@@ -78,24 +76,14 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
             admins.addItem("Пользователи", new AdminUsersMenu());
 
-            admins.addItem("Управление системой", new MenuBar.Command() {
-                @Override
-                public void menuSelected(MenuBar.MenuItem selectedItem) {
-                    getUI().getNavigator().navigateTo(Settings.NAME);
-                }
-            });
+            admins.addItem("Управление системой", (MenuBar.Command) selectedItem -> getUI().getNavigator().navigateTo(Settings.NAME));
         }
         MenuBar.MenuItem print = menuBar.addItem("Отчеты",null);
 
-        MenuBar.Command exitCommand = new MenuBar.Command() {
-            @Override
-            public void menuSelected(MenuBar.MenuItem selectedItem) {
-                getSession().setAttribute("user", null);
-                getUI().getNavigator().navigateTo(NAME);
-            }
-        };
-
-        MenuBar.MenuItem exit = menuBar.addItem("Выход", exitCommand);
+        menuBar.addItem("Выход", (MenuBar.Command) selectedItem -> {
+            getSession().setAttribute("user", null);
+            getUI().getNavigator().navigateTo(NAME);
+        });
 
         /**
          * Окно для задания параметров печати отчета для одного транспортного средства.
@@ -107,12 +95,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
         Tree treeDevices = new Tree("Треки");
 
-        treeDevices.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-                Notification.show(valueChangeEvent.getProperty().getValue().toString());
-            }
-        });
+        treeDevices.addValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> Notification.show(valueChangeEvent.getProperty().getValue().toString()));
         treeDevices.setWidth(200, Unit.PIXELS);
 
         horizontalLayout.addComponent(treeDevices);
