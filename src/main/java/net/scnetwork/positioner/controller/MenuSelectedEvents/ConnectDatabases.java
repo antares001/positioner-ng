@@ -44,12 +44,7 @@ public class ConnectDatabases implements MenuBar.Command{
         Button cancel = new Button("Отмена");
         connectLayout.addComponent(cancel, "cancelbutton");
 
-        cancel.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                window.close();
-            }
-        });
+        cancel.addClickListener((Button.ClickListener) clickEvent -> window.close());
 
         window.setContent(connectLayout);
 

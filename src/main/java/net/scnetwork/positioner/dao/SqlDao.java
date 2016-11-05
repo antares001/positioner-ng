@@ -1,11 +1,28 @@
 package net.scnetwork.positioner.dao;
 
-public class SqlDao {
-    private MySQLConnector sqlConnector = new MySQLConnector();
+import net.scnetwork.positioner.domain.BeanSettings;
+import net.scnetwork.positioner.domain.Positions;
+import net.scnetwork.positioner.domain.Report;
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-    public SqlDao(){
-        sqlConnector.setHostname("jdbc:mysql://tirgps.ddns.net:3306/traccar");
-        sqlConnector.setUsername("traccar");
-        sqlConnector.setPassword("traccar123");
+import java.util.List;
+
+@Component
+public class SqlDao {
+    @Autowired
+    private SqlSession sqlSession;
+
+    public BeanSettings getCredentials(String username){
+        return sqlSession.selectOne("selectCredentials", username);
+    }
+
+    public void insertData(Positions positions){
+        sqlSession.insert("insertPositions", positions);
+    }
+
+    public List<Report> getReport(){
+        return sqlSession.selectList("getReport");
     }
 }

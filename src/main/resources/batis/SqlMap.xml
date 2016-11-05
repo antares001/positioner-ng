@@ -1,0 +1,3 @@
+<select id="usernameId" parameterType="string" resultType="hashmap">
+    SELECT * FROM positioner_users where username=#{username}
+</select>

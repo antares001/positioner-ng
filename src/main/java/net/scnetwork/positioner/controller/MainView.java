@@ -6,6 +6,8 @@ import com.vaadin.event.Action;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.LatLon;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
@@ -13,14 +15,15 @@ import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
 import net.scnetwork.positioner.controller.MenuSelectedEvents.*;
 import net.scnetwork.positioner.utils.HiddenVariable;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 
 @Push
+@SpringComponent
+@UIScope
 public class MainView extends CustomComponent implements View, Action.Handler, Property.ValueChangeListener{
     public static final String NAME = "main";
-
-    //private SqlDao dao = new SqlDao();
 
     private GoogleMap googleMap;
     private GoogleMapPolyline polyline;
@@ -44,6 +47,7 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
         this.polyline = arg;
     }
 
+    @Autowired
     public MainView(){
         final HiddenVariable hidden = HiddenVariable.getInstance(VaadinSession.getCurrent().getSession().getId());
         String isAdmin = "0";
@@ -72,34 +76,19 @@ public class MainView extends CustomComponent implements View, Action.Handler, P
 
             admins.addItem("Пользователи", new AdminUsersMenu());
 
-            admins.addItem("Управление системой", new MenuBar.Command() {
-                @Override
-                public void menuSelected(MenuBar.MenuItem selectedItem) {
-                    getUI().getNavigator().navigateTo(Settings.NAME);
-                }
-            });
+            admins.addItem("Управление системой", (MenuBar.Command) selectedItem -> getUI().getNavigator().navigateTo(Settings.NAME));
         }
 
-        MenuBar.Command exitCommand = new MenuBar.Command() {
-            @Override
-            public void menuSelected(MenuBar.MenuItem selectedItem) {
-                getSession().setAttribute("user", null);
-                getUI().getNavigator().navigateTo(NAME);
-            }
-        };
-
-        MenuBar.MenuItem exit = menuBar.addItem("Выход", exitCommand);
+        menuBar.addItem("Выход", (MenuBar.Command) selectedItem -> {
+            getSession().setAttribute("user", null);
+            getUI().getNavigator().navigateTo(NAME);
+        });
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
         Tree treeDevices = new Tree("Треки");
 
-        treeDevices.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-                Notification.show(valueChangeEvent.getProperty().getValue().toString());
-            }
-        });
+        treeDevices.addValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> Notification.show(valueChangeEvent.getProperty().getValue().toString()));
         treeDevices.setWidth(200, Unit.PIXELS);
 
         horizontalLayout.addComponent(treeDevices);

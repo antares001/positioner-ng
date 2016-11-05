@@ -1,14 +1,19 @@
 package net.scnetwork.positioner.utils;
 
-import net.scnetwork.positioner.bean.BeanSettings;
+import net.scnetwork.positioner.domain.BeanSettings;
 
 public class UserSettings {
-    private BeanSettings settings = new BeanSettings();
+    private static BeanSettings settings = new BeanSettings();
+    private static String context;
 
     public UserSettings(){}
 
     public UserSettings(String session){
         settings.setSession(session);
+    }
+
+    public UserSettings(BeanSettings arg) {
+        settings = arg;
     }
 
     public UserSettings(String username, String password, String session){
@@ -18,6 +23,6 @@ public class UserSettings {
     }
 
     static {
-        //TODO: initialise static method
+        settings = new BeanSettings();
     }
 }
